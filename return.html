@@ -100,7 +100,7 @@ function renderList() {
         <div class="car-plate">🚗 ${e(c.plate)}</div>
         ${c.carName?`<div class="car-sub">${e(c.carName)}</div>`:''}
         <div class="car-dest">📍 ${e(c.dest)}</div>
-        <div class="car-sub">👤 ${e(c.driver)} &nbsp;🕐 ${e(c.timeOut)} น.</div>
+        <div class="car-sub">👤 ${e(c.driver)} &nbsp;🕐 ${fmtTime(c.timeOut)}</div>
       </div>
     </div>`).join('');
 
@@ -128,7 +128,7 @@ function pick(plate) {
     document.getElementById('pvP').textContent   = c.plate + (c.carName?' ('+c.carName+')':'');
     document.getElementById('pvD').textContent   = c.driver;
     document.getElementById('pvDst').textContent = c.dest;
-    document.getElementById('pvT').textContent   = 'ออก '+c.timeOut+' น.';
+    document.getElementById('pvT').textContent   = 'ออก ' + fmtTime(c.timeOut);
     document.getElementById('pv').classList.add('show');
     document.getElementById('btnS').disabled = false;
   }
@@ -170,6 +170,22 @@ function showToast(m,t='') {
   el.textContent=m; el.className='toast show'+(t?' '+t:'');
   clearTimeout(tt); tt=setTimeout(()=>el.className='toast',3500);
 }
+function fmtTime(val) {
+  if (!val) return '—';
+  // ถ้าเป็น Date string ที่ผิดรูปแบบ ให้ดึงแค่เวลา HH:MM
+  if (String(val).includes('1899') || String(val).includes('GMT')) {
+    try {
+      const d = new Date(val);
+      if (!isNaN(d)) {
+        const h = String(d.getHours()).padStart(2,'0');
+        const m = String(d.getMinutes()).padStart(2,'0');
+        return h + ':' + m + ' น.';
+      }
+    } catch(e) {}
+  }
+  return String(val) + (String(val).includes('น.') ? '' : ' น.');
+}
+
 function e(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
 </body>
