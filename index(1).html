@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>สถานะรถ | รพ.หันคา</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=Prompt:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;width:100%;}
+:root{
+  --bg:#f0f7ff;--bg2:#e6f0fb;--surface:#fff;--border:#ccddf5;
+  --blue:#1565d8;--blue-mid:#2d7ef7;--blue-light:#e0edff;
+  --red:#e02040;--red-light:#ffe0e5;--red-soft:#fff4f6;
+  --green:#00994d;--green-mid:#00c060;--green-light:#d6f5e6;--green-soft:#f0fbf5;
+  --orange:#e06a00;--text:#0d2340;--text2:#2a4870;--muted:#6a8aaa;--muted2:#98b4cc;
+}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;}
+
+/* Header */
+.header{position:sticky;top:0;z-index:50;background:rgba(240,247,255,.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1.5px solid var(--border);padding:12px 16px 10px;flex-shrink:0;}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.logo-wrap{display:flex;align-items:center;gap:10px;}
+.logo{width:38px;height:38px;background:linear-gradient(135deg,#1565d8,#2d7ef7);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+.logo-text h1{font-family:'Prompt',sans-serif;font-size:.88rem;font-weight:700;color:var(--text);}
+.logo-text p{font-size:.62rem;color:var(--muted);}
+.header-right{display:flex;align-items:center;gap:8px;}
+.live-pill{display:flex;align-items:center;gap:5px;background:var(--green-light);border:1.5px solid rgba(0,153,77,.2);border-radius:20px;padding:4px 10px;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green-mid);animation:blink 1.5s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.live-txt{font-size:.63rem;font-weight:800;color:var(--green);}
+.clock-txt{font-family:'Prompt',sans-serif;font-size:1rem;font-weight:700;color:var(--blue);background:var(--blue-light);border-radius:8px;padding:3px 9px;}
+.summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+.pill{border-radius:10px;padding:9px 8px;text-align:center;border:1.5px solid transparent;}
+.pill-total{background:var(--blue-light);border-color:rgba(21,101,216,.15);}
+.pill-busy{background:var(--red-soft);border-color:rgba(224,32,64,.15);}
+.pill-free{background:var(--green-soft);border-color:rgba(0,153,77,.15);}
+.pill-num{font-family:'Prompt',sans-serif;font-size:1.7rem;font-weight:800;line-height:1;}
+.pill-total .pill-num{color:var(--blue);}
+.pill-busy .pill-num{color:var(--red);}
+.pill-free .pill-num{color:var(--green);}
+.pill-lbl{font-size:.6rem;font-weight:600;margin-top:2px;}
+.pill-total .pill-lbl{color:rgba(21,101,216,.6);}
+.pill-busy .pill-lbl{color:rgba(224,32,64,.6);}
+.pill-free .pill-lbl{color:rgba(0,153,77,.6);}
+
+/* Tabs */
+.tabs-wrap{background:rgba(240,247,255,.95);backdrop-filter:blur(12px);border-bottom:1.5px solid var(--border);padding:0 14px;display:flex;position:sticky;top:122px;z-index:40;flex-shrink:0;}
+.tab-btn{flex:1;background:none;border:none;padding:11px 4px;font-family:'Sarabun',sans-serif;font-size:.82rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2.5px solid transparent;display:flex;align-items:center;justify-content:center;gap:5px;transition:color .2s,border-color .2s;}
+.tab-btn.active-all{color:var(--blue);border-bottom-color:var(--blue);}
+.tab-btn.active-busy{color:var(--red);border-bottom-color:var(--red);}
+.tab-btn.active-free{color:var(--green);border-bottom-color:var(--green);}
+.tab-count{font-size:.62rem;font-weight:800;border-radius:10px;padding:1px 7px;}
+.active-all .tab-count{background:var(--blue-light);color:var(--blue);}
+.active-busy .tab-count{background:var(--red-light);color:var(--red);}
+.active-free .tab-count{background:var(--green-light);color:var(--green);}
+.tab-btn:not(.active-all):not(.active-busy):not(.active-free) .tab-count{background:var(--bg2);color:var(--muted);}
+
+/* Content */
+.content{padding:12px 12px 80px;flex:1;}
+.date-bar{font-size:.68rem;font-weight:600;color:var(--muted);text-align:center;margin-bottom:12px;}
+
+/* Cards */
+.car-card{background:var(--surface);border-radius:14px;margin-bottom:10px;border:1.5px solid var(--border);box-shadow:0 2px 10px rgba(21,101,216,.05);animation:up .3s ease both;position:relative;overflow:hidden;}
+@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.car-card.busy{border-top:3px solid var(--red);}
+.car-card.free{border-top:3px solid var(--green-mid);}
+.car-card.busy{background:linear-gradient(160deg,#fff8f9 0%,#fff 50%);}
+.car-card.free{background:linear-gradient(160deg,#f6fff9 0%,#fff 50%);}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;padding:13px 14px 8px;}
+.plate{font-family:'Prompt',sans-serif;font-size:1.25rem;font-weight:800;letter-spacing:.5px;color:var(--text);}
+.car-name{font-size:.68rem;color:var(--muted);margin-top:2px;}
+.status-tag{font-size:.68rem;font-weight:800;padding:5px 11px;border-radius:20px;white-space:nowrap;}
+.tag-busy{background:var(--red-light);color:var(--red);border:1.5px solid rgba(224,32,64,.2);}
+.tag-free{background:var(--green-light);color:var(--green);border:1.5px solid rgba(0,153,77,.2);}
+.card-body{padding:0 14px 13px;}
+.divider{height:1px;background:var(--border);margin-bottom:10px;}
+.info-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;}
+.info-row:last-child{margin-bottom:0;}
+.iico{font-size:.9rem;width:18px;flex-shrink:0;margin-top:1px;}
+.ilbl{font-size:.6rem;font-weight:600;color:var(--muted);margin-bottom:1px;}
+.ival{font-size:.88rem;font-weight:700;color:var(--text2);}
+.ival.dest{color:var(--orange);}
+.ival.ready{color:var(--green);}
+.time-row{display:flex;gap:7px;margin-top:9px;}
+.tchip{flex:1;border-radius:9px;padding:8px;text-align:center;border:1.5px solid var(--border);}
+.tchip-out{background:var(--red-soft);border-color:rgba(224,32,64,.15);}
+.tchip-wait{background:var(--bg2);border-color:var(--border);}
+.tchip-lbl{font-size:.58rem;font-weight:600;color:var(--muted);margin-bottom:3px;}
+.tchip-val{font-family:'Prompt',sans-serif;font-size:1rem;font-weight:700;}
+.tv-out{color:var(--red);}
+.tv-wait{color:var(--muted2);font-family:'Sarabun',sans-serif;font-size:.8rem;font-weight:400;}
+
+/* Empty */
+.empty-state{text-align:center;padding:56px 20px;color:var(--muted);}
+.empty-icon{font-size:3rem;margin-bottom:12px;}
+.empty-txt{font-size:.95rem;font-weight:700;color:var(--text2);}
+
+/* Skeleton */
+.skel{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;animation:pulse 1.6s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+.skel-line{background:var(--bg2);border-radius:6px;margin-bottom:9px;}
+
+/* FAB */
+.fab{position:fixed;bottom:20px;right:14px;z-index:100;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--blue-mid),var(--blue));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 4px 16px rgba(21,101,216,.35);transition:transform .15s;}
+.fab:active{transform:scale(.9);}
+.fab.spin{animation:sp .7s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* Update bar */
+.update-bar{text-align:center;padding:8px 0;font-size:.63rem;color:var(--muted2);flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo-wrap">
+      <div class="logo">🚑</div>
+      <div class="logo-text">
+        <h1>สถานะรถ รพ.หันคา</h1>
+        <p>Vehicle Status Dashboard</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live-pill"><div class="live-dot"></div><span class="live-txt">LIVE</span></div>
+      <div class="clock-txt" id="clock">--:--</div>
+    </div>
+  </div>
+  <div class="summary">
+    <div class="pill pill-total"><div class="pill-num" id="pTotal">—</div><div class="pill-lbl">ทั้งหมด</div></div>
+    <div class="pill pill-busy"><div class="pill-num" id="pBusy">—</div><div class="pill-lbl">ออกงาน</div></div>
+    <div class="pill pill-free"><div class="pill-num" id="pFree">—</div><div class="pill-lbl">ว่าง</div></div>
+  </div>
+</div>
+
+<div class="tabs-wrap">
+  <button class="tab-btn active-all" id="tab-all" onclick="switchTab('all')">🚐 ทั้งหมด <span class="tab-count" id="tc-all">—</span></button>
+  <button class="tab-btn" id="tab-busy" onclick="switchTab('busy')">🔴 ออกงาน <span class="tab-count" id="tc-busy">—</span></button>
+  <button class="tab-btn" id="tab-free" onclick="switchTab('free')">🟢 ว่าง <span class="tab-count" id="tc-free">—</span></button>
+</div>
+
+<div class="content" id="content">
+  <div class="date-bar" id="dateBar"></div>
+  <div class="skel"><div class="skel-line" style="height:22px;width:45%;margin-bottom:14px"></div><div class="skel-line" style="height:13px;width:75%"></div><div class="skel-line" style="height:13px;width:60%"></div></div>
+  <div class="skel"><div class="skel-line" style="height:22px;width:40%;margin-bottom:14px"></div><div class="skel-line" style="height:13px;width:65%"></div></div>
+</div>
+
+<div class="update-bar" id="updateBar">กำลังโหลด...</div>
+<button class="fab" id="fab" onclick="load()">🔄</button>
+
+<script>
+const GAS = 'https://script.google.com/macros/s/AKfycbxTkj0fNXrmJi5osDZJmFwH1Ab4O57SIpu7zPNLhc6f81Z8uOTl2z3v0Jj11ZAwGKoobQ/exec';
+let all = [], tab = 'all', loading = false;
+
+// Clock
+setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleTimeString('th-TH',{hour12:false,hour:'2-digit',minute:'2-digit'});},1000);
+document.getElementById('clock').textContent=new Date().toLocaleTimeString('th-TH',{hour12:false,hour:'2-digit',minute:'2-digit'});
+
+// Date
+document.getElementById('dateBar').textContent=new Date().toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+async function load() {
+  if (loading) return;
+  loading = true;
+  document.getElementById('fab').classList.add('spin');
+  try {
+    const r = await fetch(GAS + '?action=getCarData');
+    const d = await r.json();
+    all = d.cars || d || [];
+    renderAll();
+    document.getElementById('updateBar').textContent = 'อัปเดตล่าสุด ' + new Date().toLocaleTimeString('th-TH');
+  } catch(e) {
+    document.getElementById('updateBar').textContent = 'โหลดไม่สำเร็จ กดรีเฟรช';
+  }
+  loading = false;
+  document.getElementById('fab').classList.remove('spin');
+}
+
+function renderAll() {
+  const busy = all.filter(c=>c.status==='ออกงาน');
+  const free = all.filter(c=>c.status!=='ออกงาน');
+  document.getElementById('pTotal').textContent = all.length;
+  document.getElementById('pBusy').textContent  = busy.length;
+  document.getElementById('pFree').textContent  = free.length;
+  document.getElementById('tc-all').textContent  = all.length;
+  document.getElementById('tc-busy').textContent = busy.length;
+  document.getElementById('tc-free').textContent = free.length;
+  renderTab(tab);
+}
+
+function renderTab(t) {
+  let cars;
+  if (t==='busy') cars=all.filter(c=>c.status==='ออกงาน');
+  else if (t==='free') cars=all.filter(c=>c.status!=='ออกงาน');
+  else cars=[...all].sort((a,b)=>(a.status==='ออกงาน')===(b.status==='ออกงาน')?0:a.status==='ออกงาน'?-1:1);
+  const content = document.getElementById('content');
+  if (!cars.length) {
+    const msgs={busy:'ไม่มีรถออกงาน',free:'รถทุกคันออกงาน',all:'ไม่มีข้อมูลรถ'};
+    content.innerHTML=`<div class="date-bar" id="dateBar"></div><div class="empty-state"><div class="empty-icon">${t==='busy'?'🟢':t==='free'?'🚐':'🚑'}</div><div class="empty-txt">${msgs[t]}</div></div>`;
+  } else {
+    content.innerHTML='<div class="date-bar" id="dateBar"></div>'+cars.map((c,i)=>card(c,i)).join('');
+  }
+  document.getElementById('dateBar').textContent=new Date().toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+}
+
+function card(c,i) {
+  const busy=c.status==='ออกงาน';
+  return `<div class="car-card ${busy?'busy':'free'}" style="animation-delay:${i*.06}s">
+    <div class="card-head">
+      <div><div class="plate">${x(c.plate)}</div>${c.carName?`<div class="car-name">${x(c.carName)}</div>`:''}</div>
+      <div class="status-tag ${busy?'tag-busy':'tag-free'}">${busy?'🔴 ออกงาน':'🟢 ว่าง'}</div>
+    </div>
+    <div class="card-body"><div class="divider"></div>
+    ${busy?`
+      <div class="info-row"><span class="iico">👤</span><div><div class="ilbl">พนักงานขับรถ</div><div class="ival">${x(c.driver)||'—'}</div></div></div>
+      <div class="info-row"><span class="iico">📍</span><div><div class="ilbl">ปลายทาง</div><div class="ival dest">${x(c.dest)||'—'}</div></div></div>
+      <div class="time-row">
+        <div class="tchip tchip-out"><div class="tchip-lbl">🕐 เวลาออก</div><div class="tchip-val tv-out">${x(c.timeOut)||'—'}</div></div>
+        <div class="tchip tchip-wait"><div class="tchip-lbl">✅ กลับถึง</div><div class="tchip-val tv-wait">รอกลับ...</div></div>
+      </div>`:`
+      <div class="info-row"><span class="iico">✅</span><div><div class="ilbl">สถานะ</div><div class="ival ready">พร้อมใช้งาน</div></div></div>
+      ${c.timeBack?`<div class="info-row"><span class="iico">🕐</span><div><div class="ilbl">กลับล่าสุด</div><div class="ival">${x(c.timeBack)} น.</div></div></div>`:''}`}
+    </div></div>`;
+}
+
+function switchTab(t) {
+  tab=t;
+  ['all','busy','free'].forEach(x=>{document.getElementById('tab-'+x).className='tab-btn'+(x===t?' active-'+t:'');});
+  renderTab(t);
+}
+
+setInterval(load, 60000);
+load();
+
+function x(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+</script>
+</body>
+</html>

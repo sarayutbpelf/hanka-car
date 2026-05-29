@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ออกงาน | รพ.หันคา</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;width:100%;}
+:root{
+  --bg:#f0f5ff;--card:#fff;--border:#dce6f5;
+  --blue:#1a6fdb;--blue-light:#e8f1fd;--blue-dark:#0d4fa8;
+  --text:#1a2332;--muted:#6b82a0;--red:#e84545;
+  --green:#0fab6e;--radius:14px;
+}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;}
+.hdr{background:linear-gradient(135deg,var(--blue-dark),var(--blue));padding:22px 20px 36px;text-align:center;position:relative;flex-shrink:0;}
+.hdr::after{content:'';position:absolute;bottom:-22px;left:-5%;right:-5%;height:44px;background:var(--bg);border-radius:50%;}
+.hdr-icon{font-size:2.6rem;margin-bottom:6px;}
+.hdr h1{color:#fff;font-size:1.25rem;font-weight:800;letter-spacing:.3px;}
+.hdr p{color:rgba(255,255,255,.7);font-size:.82rem;margin-top:5px;}
+.content{flex:1;padding:32px 18px 40px;width:100%;}
+.sec-title{font-size:.72rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:18px;}
+.field{margin-bottom:18px;}
+.label{font-size:.75rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:block;}
+.sel-wrap{position:relative;}
+.sel-wrap::after{content:'▾';position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:1.1rem;}
+select,input[type=text]{
+  width:100%;appearance:none;-webkit-appearance:none;
+  background:var(--card);border:2px solid var(--border);
+  border-radius:var(--radius);
+  padding:15px 46px 15px 16px;
+  font-family:'Sarabun',sans-serif;font-size:16px;color:var(--text);
+  outline:none;transition:border-color .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+select:focus,input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,111,219,.1);}
+input[type=text]{padding-right:16px;}
+.custom-wrap{margin-top:10px;display:none;}
+.custom-wrap.show{display:block;}
+.preview{
+  background:var(--blue-light);border:1.5px solid rgba(26,111,219,.2);
+  border-radius:var(--radius);padding:16px;margin-bottom:20px;
+  display:none;animation:fadeUp .25s ease;
+}
+.preview.show{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.prow{display:flex;align-items:flex-start;gap:10px;margin-bottom:9px;}
+.prow:last-child{margin-bottom:0;}
+.picon{width:20px;flex-shrink:0;font-size:1rem;}
+.pval{font-size:.95rem;font-weight:700;color:var(--text);}
+.btn{
+  width:100%;border:none;border-radius:var(--radius);
+  padding:17px;
+  background:linear-gradient(135deg,var(--blue),var(--blue-dark));
+  color:#fff;font-family:'Sarabun',sans-serif;
+  font-size:1.1rem;font-weight:800;
+  cursor:pointer;
+  box-shadow:0 6px 20px rgba(26,111,219,.3);
+  transition:transform .15s,opacity .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn:active{transform:scale(.97);}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:40px;text-align:center;color:var(--muted);}
+.spin{width:48px;height:48px;border:4px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:sp .7s linear infinite;margin-bottom:16px;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.toast{
+  position:fixed;bottom:28px;left:50%;
+  transform:translateX(-50%) translateY(80px);
+  background:#1a2332;color:#fff;
+  padding:14px 26px;border-radius:50px;
+  font-size:.95rem;font-weight:600;z-index:999;
+  white-space:pre-line;text-align:center;
+  max-width:88vw;
+  transition:transform .35s cubic-bezier(.34,1.4,.64,1);
+  box-shadow:0 6px 24px rgba(0,0,0,.3);
+}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.ok{background:var(--green);}
+.toast.err{background:var(--red);}
+.success-box{text-align:center;padding:48px 20px;}
+.success-icon{font-size:4.5rem;margin-bottom:18px;}
+.success-title{font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:10px;}
+.success-msg{font-size:.95rem;color:var(--muted);line-height:1.8;}
+.btn-back{
+  margin-top:24px;width:100%;border:2px solid var(--border);
+  background:none;border-radius:var(--radius);padding:14px;
+  font-family:'Sarabun',sans-serif;font-size:1rem;font-weight:700;
+  color:var(--muted);cursor:pointer;
+}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-icon">🚐</div>
+  <h1>บันทึกออกงาน</h1>
+  <p>โรงพยาบาลหันคา</p>
+</div>
+
+<div id="mainContent" class="loading">
+  <div class="spin"></div>
+  <div>กำลังโหลดข้อมูล...</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const GAS = 'https://script.google.com/macros/s/AKfycbxTkj0fNXrmJi5osDZJmFwH1Ab4O57SIpu7zPNLhc6f81Z8uOTl2z3v0Jj11ZAwGKoobQ/exec';
+let opts = null;
+
+window.onload = async () => {
+  try {
+    const r = await fetch(GAS + '?action=getFormOptions');
+    opts = await r.json();
+    renderForm();
+  } catch(e) { showErr('โหลดข้อมูลไม่สำเร็จ'); }
+};
+
+function renderForm() {
+  const dOpts = (opts.drivers||[]).map(d=>`<option value="${e(d.name)}">${e(d.name)}</option>`).join('');
+  const cOpts = (opts.freeCars||[]).length
+    ? opts.freeCars.map(c=>`<option value="${e(c.plate)}">${e(c.label)}</option>`).join('')
+    : '<option value="">ไม่มีรถว่าง</option>';
+  const dstOpts = (opts.dests||[]).map(d=>`<option value="${e(d.name)}">${e(d.name)}</option>`).join('');
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="content">
+      <div class="sec-title">🚐 เลือกข้อมูลการออกงาน</div>
+      <div class="field">
+        <span class="label">พนักงานขับรถ (พขร.)</span>
+        <div class="sel-wrap">
+          <select id="driver" onchange="upv()">
+            <option value="">-- เลือกชื่อ พขร. --</option>${dOpts}
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <span class="label">ทะเบียนรถ</span>
+        <div class="sel-wrap">
+          <select id="plate" onchange="upv()">
+            <option value="">-- เลือกทะเบียนรถ --</option>${cOpts}
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <span class="label">ปลายทาง</span>
+        <div class="sel-wrap">
+          <select id="dest" onchange="onDst()">
+            <option value="">-- เลือกปลายทาง --</option>${dstOpts}
+            <option value="__other__">✏️ พิมพ์เอง...</option>
+          </select>
+        </div>
+        <div class="custom-wrap" id="cw">
+          <input type="text" id="destTxt" placeholder="พิมพ์ปลายทาง..." oninput="upv()">
+        </div>
+      </div>
+      <div class="preview" id="pv">
+        <div class="prow"><span class="picon">👤</span><span class="pval" id="pvD">—</span></div>
+        <div class="prow"><span class="picon">🚗</span><span class="pval" id="pvP">—</span></div>
+        <div class="prow"><span class="picon">📍</span><span class="pval" id="pvDst">—</span></div>
+      </div>
+      <button class="btn" id="btnS" onclick="submit()" disabled>🚐 บันทึกออกงาน</button>
+    </div>`;
+  document.getElementById('mainContent').className = '';
+}
+
+function onDst() {
+  const v = document.getElementById('dest').value;
+  document.getElementById('cw').classList.toggle('show', v === '__other__');
+  upv();
+}
+
+function upv() {
+  const d   = document.getElementById('driver')?.value;
+  const p   = document.getElementById('plate')?.value;
+  const ds  = document.getElementById('dest')?.value;
+  const dst = ds === '__other__' ? document.getElementById('destTxt')?.value : ds;
+  document.getElementById('pvD').textContent   = d   || '—';
+  document.getElementById('pvP').textContent   = p   || '—';
+  document.getElementById('pvDst').textContent = dst || '—';
+  document.getElementById('pv').classList.toggle('show', !!(d||p||dst));
+  document.getElementById('btnS').disabled = !(d && p && dst);
+}
+
+async function submit() {
+  const driver = document.getElementById('driver').value;
+  const plate  = document.getElementById('plate').value;
+  const ds     = document.getElementById('dest').value;
+  const dest   = ds === '__other__' ? document.getElementById('destTxt').value.trim() : ds;
+  if (!driver||!plate||!dest) return;
+  setLoad(true);
+  try {
+    const url  = `${GAS}?action=submitDepartByName&driverName=${encodeURIComponent(driver)}&plate=${encodeURIComponent(plate)}&dest=${encodeURIComponent(dest)}`;
+    const data = await (await fetch(url)).json();
+    setLoad(false);
+    if (data.ok) {
+      document.getElementById('mainContent').innerHTML = `
+        <div class="content">
+          <div class="success-box">
+            <div class="success-icon">✅</div>
+            <div class="success-title">บันทึกออกงานแล้ว!</div>
+            <div class="success-msg">🚗 ${e(plate)}<br>👤 ${e(driver)}<br>📍 ${e(dest)}</div>
+            <button class="btn-back" onclick="location.reload()">← บันทึกรายการใหม่</button>
+          </div>
+        </div>`;
+    } else showToast(data.msg||'เกิดข้อผิดพลาด','err');
+  } catch(err) { setLoad(false); showToast('เกิดข้อผิดพลาด','err'); }
+}
+
+function setLoad(on) {
+  const b = document.getElementById('btnS');
+  if (!b) return;
+  b.disabled = on;
+  b.textContent = on ? '⏳ กำลังบันทึก...' : '🚐 บันทึกออกงาน';
+}
+
+function showErr(m) {
+  document.getElementById('mainContent').innerHTML = `<div class="loading">❌ ${m}</div>`;
+}
+
+let tt;
+function showToast(m, t='') {
+  const el = document.getElementById('toast');
+  el.textContent = m; el.className = 'toast show'+(t?' '+t:'');
+  clearTimeout(tt); tt = setTimeout(()=>el.className='toast', 3500);
+}
+
+function e(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+</script>
+</body>
+</html>
