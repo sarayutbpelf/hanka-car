@@ -108,6 +108,56 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);dis
 .fab.spin{animation:sp .7s linear infinite;}
 @keyframes sp{to{transform:rotate(360deg)}}
 
+/* History */
+.hist-filter{display:flex;gap:8px;margin-bottom:14px;align-items:center;}
+.hist-filter input[type=date]{
+  flex:1;background:var(--surface);border:1.5px solid var(--border);
+  border-radius:10px;padding:10px 12px;
+  font-family:'Sarabun',sans-serif;font-size:.88rem;color:var(--text);
+  outline:none;
+}
+.hist-filter input:focus{border-color:var(--blue-mid);}
+.btn-filter{
+  background:linear-gradient(135deg,var(--blue),var(--blue-mid));
+  color:#fff;border:none;border-radius:10px;
+  padding:10px 16px;font-family:'Sarabun',sans-serif;
+  font-size:.88rem;font-weight:700;cursor:pointer;white-space:nowrap;
+}
+.hist-card{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:12px;padding:14px;margin-bottom:10px;
+  animation:up .3s ease both;
+  box-shadow:0 2px 8px rgba(21,101,216,.04);
+}
+.hist-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.hist-plate{font-family:'Prompt',sans-serif;font-size:1.1rem;font-weight:800;color:var(--text);}
+.hist-carname{font-size:.68rem;color:var(--muted);margin-top:2px;}
+.hist-date-badge{
+  font-size:.68rem;font-weight:700;
+  background:var(--blue-light);color:var(--blue);
+  padding:3px 10px;border-radius:20px;white-space:nowrap;
+}
+.hist-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;}
+.hist-row:last-child{margin-bottom:0;}
+.hist-ico{font-size:.9rem;width:18px;flex-shrink:0;}
+.hist-lbl{font-size:.6rem;font-weight:600;color:var(--muted);margin-bottom:1px;}
+.hist-val{font-size:.85rem;font-weight:600;color:var(--text2);}
+.hist-val.dest{color:var(--orange);}
+.hist-time-row{display:flex;gap:7px;margin-top:8px;}
+.hist-chip{
+  flex:1;text-align:center;border-radius:8px;padding:7px 6px;
+  border:1.5px solid var(--border);
+}
+.hc-out{background:var(--red-soft);border-color:rgba(224,32,64,.15);}
+.hc-back{background:var(--green-soft);border-color:rgba(0,153,77,.15);}
+.hc-lbl{font-size:.58rem;font-weight:600;color:var(--muted);margin-bottom:2px;}
+.hc-val{font-family:'Prompt',sans-serif;font-size:.95rem;font-weight:700;}
+.hcv-out{color:var(--red);}
+.hcv-back{color:var(--green);}
+.hcv-empty{color:var(--muted2);font-family:'Sarabun',sans-serif;font-size:.78rem;font-weight:400;}
+.hist-empty{text-align:center;padding:48px 20px;color:var(--muted);}
+.hist-empty-icon{font-size:2.5rem;margin-bottom:10px;}
+
 /* Update bar */
 .update-bar{text-align:center;padding:8px 0;font-size:.63rem;color:var(--muted2);flex-shrink:0;}
 </style>
@@ -139,6 +189,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);dis
   <button class="tab-btn active-all" id="tab-all" onclick="switchTab('all')">🚐 ทั้งหมด <span class="tab-count" id="tc-all">—</span></button>
   <button class="tab-btn" id="tab-busy" onclick="switchTab('busy')">🔴 ออกงาน <span class="tab-count" id="tc-busy">—</span></button>
   <button class="tab-btn" id="tab-free" onclick="switchTab('free')">🟢 ว่าง <span class="tab-count" id="tc-free">—</span></button>
+  <button class="tab-btn" id="tab-hist" onclick="switchTab('hist')">📋 ประวัติ</button>
 </div>
 
 <div class="content" id="content">
@@ -225,10 +276,87 @@ function card(c,i) {
     </div></div>`;
 }
 
+// ─── History ───
+let histData = [];
+let histLoading = false;
+
+async function loadHistory(dateStr) {
+  histLoading = true;
+  const content = document.getElementById('content');
+  content.innerHTML = `
+    <div class="hist-filter">
+      <input type="date" id="histDate" value="${dateStr||getTodayStr()}" max="${getTodayStr()}">
+      <button class="btn-filter" onclick="searchHistory()">🔍 ค้นหา</button>
+    </div>
+    <div class="date-bar">กำลังโหลด...</div>`;
+
+  try {
+    const d = document.getElementById('histDate')?.value || getTodayStr();
+    // แปลง yyyy-mm-dd → dd/MM/yyyy
+    const [y,m,day] = d.split('-');
+    const thDate = day+'/'+m+'/'+y;
+    const r = await fetch(GAS + '?action=getHistory&date=' + encodeURIComponent(thDate));
+    histData = await r.json();
+    renderHistory(d);
+  } catch(e) {
+    content.innerHTML = '<div class="hist-empty"><div class="hist-empty-icon">❌</div><div>โหลดข้อมูลไม่สำเร็จ</div></div>';
+  }
+  histLoading = false;
+}
+
+function getTodayStr() {
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+function searchHistory() {
+  const d = document.getElementById('histDate')?.value || getTodayStr();
+  loadHistory(d);
+}
+
+function renderHistory(dateStr) {
+  const content = document.getElementById('content');
+  const [y,m,day] = (dateStr||getTodayStr()).split('-');
+  const thDate = day+'/'+m+'/'+y;
+
+  let html = `
+    <div class="hist-filter">
+      <input type="date" id="histDate" value="${dateStr||getTodayStr()}" max="${getTodayStr()}">
+      <button class="btn-filter" onclick="searchHistory()">🔍 ค้นหา</button>
+    </div>`;
+
+  if (!histData.length) {
+    html += `<div class="hist-empty"><div class="hist-empty-icon">📋</div><div style="font-weight:700;color:var(--text2)">ไม่พบประวัติวันที่ ${thDate}</div></div>`;
+  } else {
+    html += `<div class="date-bar">พบ ${histData.length} รายการ วันที่ ${thDate}</div>`;
+    html += histData.map((h,i) => `
+      <div class="hist-card" style="animation-delay:${i*.05}s">
+        <div class="hist-head">
+          <div>
+            <div class="hist-plate">🚗 ${x(h.plate)}</div>
+            ${h.carName?`<div class="hist-carname">${x(h.carName)}</div>`:''}
+          </div>
+          <div class="hist-date-badge">${x(h.date)}</div>
+        </div>
+        <div class="hist-row"><span class="hist-ico">👤</span><div><div class="hist-lbl">พนักงานขับรถ</div><div class="hist-val">${x(h.driver)||'—'}</div></div></div>
+        <div class="hist-row"><span class="hist-ico">📍</span><div><div class="hist-lbl">ปลายทาง</div><div class="hist-val dest">${x(h.dest)||'—'}</div></div></div>
+        <div class="hist-time-row">
+          <div class="hist-chip hc-out"><div class="hc-lbl">🕐 เวลาออก</div><div class="hc-val hcv-out">${x(h.timeOut)||'—'}</div></div>
+          <div class="hist-chip hc-back"><div class="hc-lbl">✅ เวลากลับ</div><div class="hc-val ${h.timeBack?'hcv-back':'hcv-empty'}">${x(h.timeBack)||'ยังไม่กลับ'}</div></div>
+        </div>
+      </div>`).join('');
+  }
+  content.innerHTML = html;
+}
+
 function switchTab(t) {
   tab=t;
-  ['all','busy','free'].forEach(x=>{document.getElementById('tab-'+x).className='tab-btn'+(x===t?' active-'+t:'');});
-  renderTab(t);
+  ['all','busy','free','hist'].forEach(x=>{
+    const el = document.getElementById('tab-'+x);
+    if (el) el.className='tab-btn'+(x===t?' active-'+t:'');
+  });
+  if (t === 'hist') loadHistory(getTodayStr());
+  else renderTab(t);
 }
 
 setInterval(load, 60000);
