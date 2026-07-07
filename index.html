@@ -246,7 +246,7 @@ input[type=text]{padding-right:14px;}
 // CONFIG
 // ══════════════════════════════════════════════
 const GAS_URL  = 'https://script.google.com/macros/s/AKfycbxTkj0fNXrmJi5osDZJmFwH1Ab4O57SIpu7zPNLhc6f81Z8uOTl2z3v0Jj11ZAwGKoobQ/exec';
-const VAPID_KEY = 'BLTcclgo544kLcSj1a4r-H6tN7DH3zy7BTYVq-iCmDJX2dqxzDZPgJit8T3yooqxgH5w74Y333H4V8AeoB1u4zU';
+const VAPID_KEY = 'BLTccIgo544kLcSj1a4r-H6tN7DH3zy7BTYVq-iCmDJX2dqxzDZPgJit8T3yooqxgH5w74Y333H4V8AeoB1u4zU';
 
 // ── Firebase Init ──
 firebase.initializeApp({
@@ -362,12 +362,16 @@ async function loadAll() {
   isLoading = true;
   document.getElementById('fab').classList.add('spin-anim');
   try {
-    const [r1, r2] = await Promise.all([
+    const [r1, r2, r3] = await Promise.all([
       fetch(GAS_URL + '?action=getCarData'),
       fetch(GAS_URL + '?action=getFormOptions'),
+      fetch(GAS_URL + '?action=getHashtags'),
     ]);
-    allCars = await r1.json();
-    opts    = await r2.json();
+    allCars  = await r1.json();
+    opts     = await r2.json();
+    const hd = await r3.json();
+    opts.hashtags         = hd.hashtags        || [];
+    opts.ambulanceKeywords = hd.keywords       || [];
     updateStats();
     renderDashboard();
     renderDepartForm();
@@ -438,17 +442,73 @@ function renderDepartForm() {
       <div class="field"><label>พนักงานขับรถ</label>
         <div class="sel-wrap"><select id="d_driver" onchange="updateDepartPreview()"><option value="">— เลือก พขร. —</option>${driverOpts}</select></div></div>
       <div class="field"><label>ทะเบียนรถ</label>
-        <div class="sel-wrap"><select id="d_plate" onchange="updateDepartPreview()"><option value="">— เลือกทะเบียน —</option>${carOpts}</select></div></div>
+        <div class="sel-wrap"><select id="d_plate" onchange="onPlateChange()"><option value="">— เลือกทะเบียน —</option>${carOpts}</select></div></div>
       <div class="field"><label>ปลายทาง</label>
         <div class="sel-wrap"><select id="d_dest" onchange="onDestChange()"><option value="">— เลือกปลายทาง —</option>${destOpts}<option value="__other__">✏️ พิมพ์เอง...</option></select></div>
         <div class="custom-input" id="d_customWrap"><input type="text" id="d_destCustom" placeholder="พิมพ์ปลายทาง..." oninput="updateDepartPreview()"></div></div>
+      <div class="field" id="hashtagField" style="display:none">
+        <label>🏷️ ประเภทงาน (Hashtag)</label>
+        <div id="hashtagList" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px"></div>
+      </div>
       <div class="preview-box" id="d_preview">
         <div class="prev-row">👤 <span class="prev-val" id="pv_driver">—</span></div>
         <div class="prev-row">🚗 <span class="prev-val" id="pv_plate">—</span></div>
         <div class="prev-row">📍 <span class="prev-val" id="pv_dest">—</span></div>
+        <div class="prev-row" id="pv_hash_row" style="display:none">🏷️ <span class="prev-val" id="pv_hash">—</span></div>
       </div>
       <button class="btn-submit btn-blue" id="d_btn" onclick="submitDepart()" disabled>🚐 บันทึกออกงาน</button>
     </div>`;
+
+  // render hashtag buttons
+  renderHashtags();
+}
+
+function isAmbulance(plate) {
+  if (!opts || !plate) return false;
+  const car = (opts.freeCars||[]).find(c => c.plate === plate);
+  if (!car) return false;
+  const name = (car.carName||'').toLowerCase();
+  return (opts.ambulanceKeywords||[]).some(k => name.includes(k.toLowerCase()));
+}
+
+function renderHashtags() {
+  const list = document.getElementById('hashtagList');
+  if (!list || !opts.hashtags) return;
+  list.innerHTML = (opts.hashtags||[]).map(tag =>
+    `<button type="button" onclick="toggleHashtag(this,'${esc(tag)}')" style="
+      padding:6px 12px;border-radius:20px;border:1.5px solid var(--border2);
+      background:var(--surface2);color:var(--text2);font-family:'Sarabun',sans-serif;
+      font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s;
+    ">${esc(tag)}</button>`
+  ).join('');
+}
+
+function toggleHashtag(btn, tag) {
+  const active = btn.getAttribute('data-active') === '1';
+  if (active) {
+    btn.removeAttribute('data-active');
+    btn.style.background = 'var(--surface2)';
+    btn.style.color      = 'var(--text2)';
+    btn.style.borderColor = 'var(--border2)';
+  } else {
+    btn.setAttribute('data-active','1');
+    btn.style.background  = 'var(--blue-light)';
+    btn.style.color       = 'var(--blue)';
+    btn.style.borderColor = 'var(--blue-mid)';
+  }
+  updateDepartPreview();
+}
+
+function getSelectedHashtags() {
+  const btns = document.querySelectorAll('#hashtagList button[data-active="1"]');
+  return Array.from(btns).map(b => b.textContent).join(' ');
+}
+
+function onPlateChange() {
+  const plate = document.getElementById('d_plate')?.value;
+  const hashField = document.getElementById('hashtagField');
+  if (hashField) hashField.style.display = isAmbulance(plate) ? 'block' : 'none';
+  updateDepartPreview();
 }
 
 function onDestChange() {
@@ -462,9 +522,15 @@ function updateDepartPreview() {
   const plate  = document.getElementById('d_plate')?.value;
   const dv     = document.getElementById('d_dest')?.value;
   const dest   = dv==='__other__' ? document.getElementById('d_destCustom')?.value : dv;
+  const hash   = getSelectedHashtags();
   document.getElementById('pv_driver').textContent = driver||'—';
   document.getElementById('pv_plate').textContent  = plate||'—';
   document.getElementById('pv_dest').textContent   = dest||'—';
+  const hashRow = document.getElementById('pv_hash_row');
+  if (hashRow) {
+    hashRow.style.display = hash ? 'flex' : 'none';
+    document.getElementById('pv_hash').textContent = hash;
+  }
   document.getElementById('d_preview')?.classList.toggle('show',!!(driver||plate||dest));
   if (document.getElementById('d_btn'))
     document.getElementById('d_btn').disabled = !(driver&&plate&&dest);
@@ -475,11 +541,12 @@ async function submitDepart() {
   const plate  = document.getElementById('d_plate').value;
   const dv     = document.getElementById('d_dest').value;
   const dest   = dv==='__other__' ? document.getElementById('d_destCustom').value.trim() : dv;
+  const hash   = getSelectedHashtags();
   if (!driver||!plate||!dest) return;
   const btn = document.getElementById('d_btn');
   btn.disabled=true; btn.textContent='⏳ กำลังบันทึก...';
   try {
-    const res  = await fetch(GAS_URL+'?action=submitDepartByName&driverName='+encodeURIComponent(driver)+'&plate='+encodeURIComponent(plate)+'&dest='+encodeURIComponent(dest));
+    const res  = await fetch(GAS_URL+'?action=submitDepartByName&driverName='+encodeURIComponent(driver)+'&plate='+encodeURIComponent(plate)+'&dest='+encodeURIComponent(dest)+'&hashtags='+encodeURIComponent(hash));
     const data = await res.json();
     if (data.ok) {
       document.getElementById('departContent').innerHTML = `
