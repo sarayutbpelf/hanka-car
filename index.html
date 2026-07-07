@@ -336,15 +336,32 @@ const GAS_URL  = 'https://script.google.com/macros/s/AKfycbxTkj0fNXrmJi5osDZJmFw
 const VAPID_KEY = 'BLTccIgo544kLcSj1a4r-H6tN7DH3zy7BTYVq-iCmDJX2dqxzDZPgJit8T3yooqxgH5w74Y333H4V8AeoB1u4zU';
 
 // ── Firebase Init ──
-firebase.initializeApp({
-  apiKey           : "AIzaSyCRHN0Jgi_OT40YAB_nt7oG49WrUdVduu8",
-  authDomain       : "huncar-82206.firebaseapp.com",
-  projectId        : "huncar-82206",
-  storageBucket    : "huncar-82206.firebasestorage.app",
-  messagingSenderId: "711966399729",
-  appId            : "1:711966399729:web:59ca49b307bc27973e9d50",
-});
-const messaging = firebase.messaging();
+let messaging = null;
+try {
+  firebase.initializeApp({
+    apiKey           : "AIzaSyCRHN0Jgi_OT40YAB_nt7oG49WrUdVduu8",
+    authDomain       : "huncar-82206.firebaseapp.com",
+    projectId        : "huncar-82206",
+    storageBucket    : "huncar-82206.firebasestorage.app",
+    messagingSenderId: "711966399729",
+    appId            : "1:711966399729:web:59ca49b307bc27973e9d50",
+  });
+  messaging = firebase.messaging();
+  // รับ Notification เมื่อแอปเปิดอยู่ (Foreground)
+  messaging.onMessage(payload => {
+    const n     = payload.notification || {};
+    const title = n.title || '🚑 Hancar';
+    const body  = n.body  || '';
+    showToast(title + '\n' + body, 'ok');
+    addNotifyHistory(title, body);
+    if (Notification.permission === 'granted') {
+      new Notification(title, { body, icon:'/hanka-car/icon-192.png', badge:'/hanka-car/icon-192.png' });
+    }
+    loadAll();
+  });
+} catch(e) {
+  console.warn('Firebase init error (ไม่กระทบการโหลดข้อมูล):', e);
+}
 
 // ══════════════════════════════════════════════
 // STATE
@@ -451,6 +468,7 @@ async function requestNotify() {
   }
 
   try {
+    if (!messaging) throw new Error('Firebase ไม่พร้อมใช้งาน');
     const sw    = await navigator.serviceWorker.ready;
     const token = await messaging.getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: sw });
     if (token) {
@@ -466,21 +484,6 @@ async function requestNotify() {
     showToast('เกิดข้อผิดพลาด: ' + e.message, 'err');
   }
 }
-
-// รับ Notification เมื่อแอปเปิดอยู่ (Foreground)
-messaging.onMessage(payload => {
-  const n    = payload.notification || {};
-  const title = n.title || '🚑 Hancar';
-  const body  = n.body  || '';
-  showToast(title + '\n' + body, 'ok');
-  // บันทึกประวัติ
-  addNotifyHistory(title, body);
-  // แสดง native notification
-  if (Notification.permission === 'granted') {
-    new Notification(title, { body, icon:'/icon-192.png', badge:'/icon-192.png' });
-  }
-  loadAll();
-});
 
 function checkNotifyStatus() {
   if (!('Notification' in window)) return;
