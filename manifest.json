@@ -2,7 +2,8 @@
   "name": "หันคา Car — ระบบติดตามรถพยาบาล",
   "short_name": "หันคา Car",
   "description": "ระบบติดตามสถานะรถพยาบาล โรงพยาบาลหันคา",
-  "start_url": "/",
+  "start_url": "/hanka-car/",
+  "scope": "/hanka-car/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0d2e6e",
@@ -22,20 +23,17 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["medical", "utilities"],
   "shortcuts": [
     {
       "name": "ออกงาน",
       "short_name": "ออกงาน",
-      "description": "บันทึกออกงาน",
-      "url": "/?tab=depart",
+      "url": "/hanka-car/?tab=depart",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "กลับถึง",
       "short_name": "กลับถึง",
-      "description": "บันทึกกลับถึง",
-      "url": "/?tab=return",
+      "url": "/hanka-car/?tab=return",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     }
   ]
