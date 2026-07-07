@@ -15,8 +15,8 @@ firebase.initializeApp({
 });
 
 const messaging = firebase.messaging();
-const CACHE_NAME = 'hanka-car-v2';
-const CACHE_URLS = ['/', '/index.html', '/manifest.json'];
+const CACHE_NAME = 'hanka-car-v3';
+const CACHE_URLS = ['/hanka-car/', '/hanka-car/index.html', '/hanka-car/manifest.json'];
 
 // ── Install ──
 self.addEventListener('install', e => {
