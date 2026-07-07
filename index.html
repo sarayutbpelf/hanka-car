@@ -169,11 +169,71 @@ input[type=text]{padding-right:14px;}
 
 /* UPDATE BAR */
 .update-bar{text-align:center;padding:5px 0;font-size:.6rem;color:var(--muted2);flex-shrink:0;background:var(--surface);border-top:1px solid var(--border);}
+
+/* BOTTOM NAV — ออกแบบสำหรับผู้สูงอายุ */
+.bottom-nav{
+  display:flex;background:var(--surface);
+  border-top:2px solid var(--border);
+  flex-shrink:0;gap:10px;padding:10px 12px 14px;
+  padding-bottom:calc(14px + env(safe-area-inset-bottom));
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:5px;
+  border:none;cursor:pointer;
+  font-family:'Sarabun',sans-serif;
+  font-size:.82rem;font-weight:800;
+  padding:12px 6px;border-radius:14px;
+  transition:all .15s;
+}
+.nav-icon{font-size:1.8rem;line-height:1;}
+.nav-item.nav-status{background:var(--blue-soft);color:var(--blue);}
+.nav-item.nav-status.active{background:var(--blue);color:#fff;box-shadow:0 4px 14px rgba(26,92,232,.35);}
+.nav-item.nav-depart{background:#fff3f3;color:var(--red);}
+.nav-item.nav-depart.active{background:var(--red);color:#fff;box-shadow:0 4px 14px rgba(224,32,64,.35);}
+.nav-item.nav-return{background:#f0fbf5;color:var(--green);}
+.nav-item.nav-return.active{background:var(--green);color:#fff;box-shadow:0 4px 14px rgba(0,145,74,.35);}
+.nav-item:active{transform:scale(.95);}
+.tabs.hidden{display:none;}
 </style>
 </head>
 <body>
 
-<!-- Install Banner -->
+<!-- Notification History Drawer -->
+<div id="notifyDrawer" style="
+  position:fixed;inset:0;z-index:400;display:none;
+">
+  <div id="notifyOverlay" onclick="closeNotifyDrawer()" style="
+    position:absolute;inset:0;background:rgba(13,30,60,.45);
+    backdrop-filter:blur(3px);
+  "></div>
+  <div style="
+    position:absolute;top:0;right:0;bottom:0;width:92%;max-width:400px;
+    background:var(--surface);display:flex;flex-direction:column;
+    box-shadow:-8px 0 32px rgba(13,30,60,.2);
+    animation:slideInRight .3s ease;
+  ">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 16px;border-bottom:1.5px solid var(--border);flex-shrink:0;">
+      <div>
+        <div style="font-family:'Prompt',sans-serif;font-size:1rem;font-weight:700;color:var(--text)">🔔 ประวัติการแจ้งเตือน</div>
+        <div style="font-size:.7rem;color:var(--muted);margin-top:2px" id="notifyCount">—</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button onclick="clearNotifyHistory()" style="
+          background:var(--red-soft);color:var(--red);border:none;
+          border-radius:8px;padding:6px 12px;font-family:'Sarabun',sans-serif;
+          font-size:.78rem;font-weight:700;cursor:pointer;
+        ">🗑️ ลบทั้งหมด</button>
+        <button onclick="closeNotifyDrawer()" style="
+          background:var(--bg);border:none;border-radius:8px;
+          width:34px;height:34px;font-size:1.2rem;cursor:pointer;
+        ">✕</button>
+      </div>
+    </div>
+    <div id="notifyList" style="flex:1;overflow-y:auto;padding:12px;"></div>
+  </div>
+</div>
+@keyframes slideInRight{from{transform:translateX(100%)}to{transform:translateX(0)}}
 <div id="installBanner">
   <div class="install-icon">📱</div>
   <div class="install-text">
@@ -198,7 +258,7 @@ input[type=text]{padding-right:14px;}
     </div>
     <div class="header-actions">
       <div class="live-pill"><div class="live-dot"></div><span class="live-txt">LIVE</span></div>
-      <button class="notify-btn" id="notifyBtn" onclick="requestNotify()" title="เปิดการแจ้งเตือน">
+      <button class="notify-btn" id="notifyBtn" onclick="openNotifyDrawer()" title="ประวัติการแจ้งเตือน">
         🔔<span class="notify-badge" id="notifyBadge"></span>
       </button>
     </div>
@@ -210,11 +270,11 @@ input[type=text]{padding-right:14px;}
   </div>
 </div>
 
-<!-- Tabs -->
-<div class="tabs">
-  <button class="tab-btn active" id="tab-dashboard" onclick="showTab('dashboard')">🚐 สถานะ <span class="tab-count" id="tc-all">—</span></button>
-  <button class="tab-btn" id="tab-depart" onclick="showTab('depart')">📤 ออกงาน</button>
-  <button class="tab-btn" id="tab-return" onclick="showTab('return')">📥 กลับถึง <span class="tab-count" id="tc-busy">—</span></button>
+<!-- Tabs — เฉพาะหน้า Dashboard -->
+<div class="tabs" id="dashTabs">
+  <button class="tab-btn active" id="tab-all" onclick="filterDash('all')">🚐 ทั้งหมด <span class="tab-count" id="tc-all">—</span></button>
+  <button class="tab-btn" id="tab-busy" onclick="filterDash('busy')">🔴 ออกงาน <span class="tab-count" id="tc-busy">—</span></button>
+  <button class="tab-btn" id="tab-free" onclick="filterDash('free')">🟢 ว่าง <span class="tab-count" id="tc-free">—</span></button>
 </div>
 
 <!-- Screens -->
@@ -236,6 +296,22 @@ input[type=text]{padding-right:14px;}
 <div class="update-bar" id="updateBar">กำลังโหลดข้อมูล...</div>
 <button class="fab" id="fab" onclick="loadAll()">🔄</button>
 <div class="toast" id="toast"></div>
+
+<!-- Bottom Navigation -->
+<div class="bottom-nav">
+  <button class="nav-item nav-status active" id="nav-dashboard" onclick="showTab('dashboard')">
+    <span class="nav-icon">🏠</span>
+    <span>หน้าหลัก</span>
+  </button>
+  <button class="nav-item nav-depart" id="nav-depart" onclick="showTab('depart')">
+    <span class="nav-icon">🚗💨</span>
+    <span>ออกงาน</span>
+  </button>
+  <button class="nav-item nav-return" id="nav-return" onclick="showTab('return')">
+    <span class="nav-icon">🏁</span>
+    <span>กลับถึง</span>
+  </button>
+</div>
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -299,6 +375,75 @@ window.addEventListener('appinstalled', () => {
 });
 
 // ══════════════════════════════════════════════
+// NOTIFICATION HISTORY
+// ══════════════════════════════════════════════
+function getNotifyHistory() {
+  try { return JSON.parse(localStorage.getItem('notifyHistory') || '[]'); } catch(e) { return []; }
+}
+function saveNotifyHistory(list) {
+  localStorage.setItem('notifyHistory', JSON.stringify(list.slice(0, 50)));
+}
+function addNotifyHistory(title, body) {
+  const list = getNotifyHistory();
+  list.unshift({ title, body, time: Date.now() });
+  saveNotifyHistory(list);
+  // เพิ่ม unread count
+  const unread = parseInt(localStorage.getItem('notifyUnread') || '0') + 1;
+  localStorage.setItem('notifyUnread', String(unread));
+  updateNotifyBadge();
+}
+function updateNotifyBadge() {
+  const unread = parseInt(localStorage.getItem('notifyUnread') || '0');
+  const badge  = document.getElementById('notifyBadge');
+  if (badge) badge.classList.toggle('show', unread > 0);
+}
+function openNotifyDrawer() {
+  if (!('Notification' in window) || Notification.permission !== 'granted') {
+    requestNotify(); return;
+  }
+  localStorage.setItem('notifyUnread', '0');
+  updateNotifyBadge();
+  renderNotifyList();
+  document.getElementById('notifyDrawer').style.display = 'block';
+}
+function closeNotifyDrawer() {
+  document.getElementById('notifyDrawer').style.display = 'none';
+}
+function clearNotifyHistory() {
+  if (!confirm('ลบประวัติการแจ้งเตือนทั้งหมด?')) return;
+  localStorage.removeItem('notifyHistory');
+  localStorage.setItem('notifyUnread', '0');
+  updateNotifyBadge();
+  renderNotifyList();
+}
+function renderNotifyList() {
+  const list = getNotifyHistory();
+  const el   = document.getElementById('notifyList');
+  const cnt  = document.getElementById('notifyCount');
+  if (cnt) cnt.textContent = list.length ? list.length + ' รายการ' : 'ยังไม่มีประวัติ';
+  if (!list.length) {
+    el.innerHTML = '<div style="text-align:center;padding:48px 16px;color:var(--muted)"><div style="font-size:2.5rem;margin-bottom:12px">🔕</div><div style="font-weight:700;color:var(--text2)">ยังไม่มีการแจ้งเตือน</div><div style="font-size:.78rem;margin-top:6px">เปิดรับการแจ้งเตือนก่อนนะครับ</div></div>';
+    return;
+  }
+  el.innerHTML = list.map(function(n) {
+    var d    = new Date(n.time);
+    var date = d.toLocaleDateString('th-TH', {day:'numeric', month:'short'});
+    var time = d.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'});
+    var isBusy   = n.title && n.title.includes('ออกงาน');
+    var isReturn = n.title && n.title.includes('กลับถึง');
+    var color = isBusy ? 'var(--red)' : isReturn ? 'var(--green)' : 'var(--blue)';
+    var bg    = isBusy ? 'var(--red-soft)' : isReturn ? 'var(--green-soft)' : 'var(--blue-soft)';
+    return '<div style="background:' + bg + ';border-radius:12px;padding:12px 14px;margin-bottom:8px;border-left:3px solid ' + color + '">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">' +
+        '<div style="font-size:.9rem;font-weight:800;color:var(--text)">' + x(n.title||'') + '</div>' +
+        '<div style="font-size:.68rem;color:var(--muted);white-space:nowrap;flex-shrink:0">' + date + ' ' + time + '</div>' +
+      '</div>' +
+      '<div style="font-size:.85rem;color:var(--text2);margin-top:5px;white-space:pre-line;line-height:1.6">' + x(n.body||'') + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// ══════════════════════════════════════════════
 // PUSH NOTIFICATION
 // ══════════════════════════════════════════════
 async function requestNotify() {
@@ -315,12 +460,12 @@ async function requestNotify() {
     const sw    = await navigator.serviceWorker.ready;
     const token = await messaging.getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: sw });
     if (token) {
-      // ส่ง token ไปบันทึกที่ GAS
       await fetch(GAS_URL + '?action=saveFcmToken&token=' + encodeURIComponent(token));
       localStorage.setItem('fcmToken', token);
       document.getElementById('notifyBtn').classList.add('enabled');
-      document.getElementById('notifyBadge').classList.remove('show');
       showToast('✅ เปิดการแจ้งเตือนแล้ว', 'ok');
+      // เปิด drawer หลังอนุญาต
+      setTimeout(() => openNotifyDrawer(), 800);
     }
   } catch(e) {
     console.error('FCM error:', e);
@@ -330,17 +475,16 @@ async function requestNotify() {
 
 // รับ Notification เมื่อแอปเปิดอยู่ (Foreground)
 messaging.onMessage(payload => {
-  const n = payload.notification || {};
-  showToast((n.title || '🚑') + ' ' + (n.body || ''), 'ok');
-  // แสดง native notification ด้วย
+  const n    = payload.notification || {};
+  const title = n.title || '🚑 Hancar';
+  const body  = n.body  || '';
+  showToast(title + '\n' + body, 'ok');
+  // บันทึกประวัติ
+  addNotifyHistory(title, body);
+  // แสดง native notification
   if (Notification.permission === 'granted') {
-    new Notification(n.title || '🚑 Hancar', {
-      body : n.body || '',
-      icon : '/icon-192.png',
-      badge: '/icon-192.png',
-    });
+    new Notification(title, { body, icon:'/icon-192.png', badge:'/icon-192.png' });
   }
-  // reload ข้อมูลใหม่
   loadAll();
 });
 
@@ -352,6 +496,8 @@ function checkNotifyStatus() {
   } else {
     document.getElementById('notifyBadge').classList.add('show');
   }
+  updateNotifyBadge();
+}
 }
 
 // ══════════════════════════════════════════════
@@ -399,10 +545,12 @@ function updateStats() {
 // DASHBOARD
 // ══════════════════════════════════════════════
 function renderDashboard() {
-  const sorted = [...allCars].sort((a,b) =>
-    (a.status==='ออกงาน')===(b.status==='ออกงาน')?0:a.status==='ออกงาน'?-1:1);
-  document.getElementById('carList').innerHTML = sorted.length
-    ? sorted.map((c,i) => buildCarCard(c,i)).join('')
+  let cars = [...allCars];
+  if (currentFilter === 'busy') cars = cars.filter(c => c.status === 'ออกงาน');
+  else if (currentFilter === 'free') cars = cars.filter(c => c.status !== 'ออกงาน');
+  else cars.sort((a,b) => (a.status==='ออกงาน')===(b.status==='ออกงาน')?0:a.status==='ออกงาน'?-1:1);
+  document.getElementById('carList').innerHTML = cars.length
+    ? cars.map((c,i) => buildCarCard(c,i)).join('')
     : '<div class="empty-state"><div class="empty-icon">🚑</div><div class="empty-txt">ไม่มีข้อมูลรถ</div></div>';
 }
 
@@ -640,17 +788,38 @@ async function submitReturn() {
 }
 
 // ══════════════════════════════════════════════
-// TAB NAV
+// TAB & NAV
 // ══════════════════════════════════════════════
 function showTab(name) {
   ['dashboard','depart','return'].forEach(t => {
     document.getElementById('screen-'+t)?.classList.toggle('active', t===name);
+  });
+  // อัปเดต bottom nav
+  document.getElementById('nav-dashboard')?.classList.toggle('active', name==='dashboard');
+  document.getElementById('nav-depart')?.classList.toggle('active', name==='depart');
+  document.getElementById('nav-return')?.classList.toggle('active', name==='return');
+  // แสดง/ซ่อน tab filter เฉพาะหน้า dashboard
+  const dashTabs = document.getElementById('dashTabs');
+  if (dashTabs) dashTabs.classList.toggle('hidden', name !== 'dashboard');
+  // ซ่อน FAB เมื่ออยู่หน้าออกงาน/กลับถึง
+  const fab = document.getElementById('fab');
+  if (fab) fab.style.display = name === 'dashboard' ? 'flex' : 'none';
+}
+
+let currentFilter = 'all';
+function filterDash(filter) {
+  currentFilter = filter;
+  ['all','busy','free'].forEach(t => {
     const btn = document.getElementById('tab-'+t);
     if (!btn) return;
-    btn.className = 'tab-btn' + (t===name?' active':'');
-    if (t===name && t==='depart') btn.classList.add('tab-red');
-    if (t===name && t==='return') btn.classList.add('tab-green');
+    btn.classList.toggle('active', t===filter);
+    if (t===filter) {
+      btn.classList.remove('tab-red','tab-green');
+      if (t==='busy') btn.classList.add('tab-red');
+      if (t==='free') btn.classList.add('tab-green');
+    }
   });
+  renderDashboard();
 }
 
 // ══════════════════════════════════════════════
