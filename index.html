@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0d2e6e">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="หันคา Car">
+<meta name="apple-mobile-web-app-title" content="Hancar">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Hancar</title>
@@ -192,7 +192,7 @@ input[type=text]{padding-right:14px;}
     <div class="brand">
       <div class="brand-icon">🚑</div>
       <div class="brand-text">
-        <h1>หันคา Car</h1>
+        <h1>Hancar</h1>
         <p>ระบบติดตามรถพยาบาล</p>
       </div>
     </div>
@@ -334,7 +334,7 @@ messaging.onMessage(payload => {
   showToast((n.title || '🚑') + ' ' + (n.body || ''), 'ok');
   // แสดง native notification ด้วย
   if (Notification.permission === 'granted') {
-    new Notification(n.title || '🚑 หันคา Car', {
+    new Notification(n.title || '🚑 Hancar', {
       body : n.body || '',
       icon : '/icon-192.png',
       badge: '/icon-192.png',
@@ -436,6 +436,7 @@ function renderDepartForm() {
     ? opts.freeCars.map(c=>`<option value="${esc(c.plate)}">${esc(c.label)}</option>`).join('')
     : '<option value="">ไม่มีรถว่าง</option>';
   const destOpts   = (opts.dests||[]).map(d=>`<option value="${esc(d.name)}">${esc(d.name)}</option>`).join('');
+
   document.getElementById('departContent').innerHTML = `
     <div class="form-card">
       <div class="form-title">📤 บันทึกออกงาน</div>
@@ -446,68 +447,83 @@ function renderDepartForm() {
       <div class="field"><label>ปลายทาง</label>
         <div class="sel-wrap"><select id="d_dest" onchange="onDestChange()"><option value="">— เลือกปลายทาง —</option>${destOpts}<option value="__other__">✏️ พิมพ์เอง...</option></select></div>
         <div class="custom-input" id="d_customWrap"><input type="text" id="d_destCustom" placeholder="พิมพ์ปลายทาง..." oninput="updateDepartPreview()"></div></div>
-      <div class="field" id="hashtagField" style="display:none">
-        <label>🏷️ ประเภทงาน (Hashtag)</label>
-        <div id="hashtagList" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px"></div>
+
+      <div id="hashtagWrap" style="display:none;margin-bottom:14px">
+        <label style="display:block;font-size:.68rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">🏷️ แฮชแท็ก (ไม่บังคับ)</label>
+        <div id="hashtagGrid" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px"></div>
+        <input type="text" id="hashtagCustom" placeholder="พิมพ์แฮชแท็กเพิ่มเติม... (เช่น #ด่วน)"
+          style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-family:'Sarabun',sans-serif;font-size:.95rem;color:var(--text);outline:none;"
+          oninput="updateDepartPreview()">
       </div>
+
       <div class="preview-box" id="d_preview">
         <div class="prev-row">👤 <span class="prev-val" id="pv_driver">—</span></div>
         <div class="prev-row">🚗 <span class="prev-val" id="pv_plate">—</span></div>
         <div class="prev-row">📍 <span class="prev-val" id="pv_dest">—</span></div>
-        <div class="prev-row" id="pv_hash_row" style="display:none">🏷️ <span class="prev-val" id="pv_hash">—</span></div>
       </div>
       <button class="btn-submit btn-blue" id="d_btn" onclick="submitDepart()" disabled>🚐 บันทึกออกงาน</button>
     </div>`;
-
-  // render hashtag buttons
-  renderHashtags();
 }
 
 function isAmbulance(plate) {
   if (!opts || !plate) return false;
   const car = (opts.freeCars||[]).find(c => c.plate === plate);
   if (!car) return false;
-  const name = (car.carName||'').toLowerCase();
+  const name = (car.carName || car.label || '').toLowerCase();
   return (opts.ambulanceKeywords||[]).some(k => name.includes(k.toLowerCase()));
 }
 
 function renderHashtags() {
-  const list = document.getElementById('hashtagList');
-  if (!list || !opts.hashtags) return;
-  list.innerHTML = (opts.hashtags||[]).map(tag =>
-    `<button type="button" onclick="toggleHashtag(this,'${esc(tag)}')" style="
-      padding:6px 12px;border-radius:20px;border:1.5px solid var(--border2);
-      background:var(--surface2);color:var(--text2);font-family:'Sarabun',sans-serif;
-      font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s;
-    ">${esc(tag)}</button>`
+  const grid = document.getElementById('hashtagGrid');
+  if (!grid || !opts.hashtags) return;
+  grid.innerHTML = (opts.hashtags||[]).map(h =>
+    `<button class="htag-btn" onclick="toggleTag(this,'${esc(h)}')" type="button"
+      style="padding:8px 14px;border-radius:20px;border:1.5px solid var(--border);
+      background:var(--surface);font-family:'Sarabun',sans-serif;font-size:.88rem;
+      cursor:pointer;transition:all .15s;color:var(--text2);">${esc(h)}</button>`
   ).join('');
 }
 
-function toggleHashtag(btn, tag) {
-  const active = btn.getAttribute('data-active') === '1';
+function toggleTag(el) {
+  const active = el.getAttribute('data-active') === '1';
   if (active) {
-    btn.removeAttribute('data-active');
-    btn.style.background = 'var(--surface2)';
-    btn.style.color      = 'var(--text2)';
-    btn.style.borderColor = 'var(--border2)';
+    el.removeAttribute('data-active');
+    el.style.background   = 'var(--surface)';
+    el.style.color        = 'var(--text2)';
+    el.style.borderColor  = 'var(--border)';
   } else {
-    btn.setAttribute('data-active','1');
-    btn.style.background  = 'var(--blue-light)';
-    btn.style.color       = 'var(--blue)';
-    btn.style.borderColor = 'var(--blue-mid)';
+    el.setAttribute('data-active','1');
+    el.style.background   = 'var(--blue)';
+    el.style.color        = '#fff';
+    el.style.borderColor  = 'var(--blue)';
   }
   updateDepartPreview();
 }
 
-function getSelectedHashtags() {
-  const btns = document.querySelectorAll('#hashtagList button[data-active="1"]');
-  return Array.from(btns).map(b => b.textContent).join(' ');
+function getSelectedTags() {
+  const selected = Array.from(document.querySelectorAll('.htag-btn[data-active="1"]')).map(b => b.textContent);
+  const custom   = (document.getElementById('hashtagCustom')?.value || '').trim();
+  if (custom) selected.push(custom);
+  return selected.join(' ');
 }
 
 function onPlateChange() {
   const plate = document.getElementById('d_plate')?.value;
-  const hashField = document.getElementById('hashtagField');
-  if (hashField) hashField.style.display = isAmbulance(plate) ? 'block' : 'none';
+  const wrap  = document.getElementById('hashtagWrap');
+  if (wrap) {
+    if (plate && isAmbulance(plate)) {
+      wrap.style.display = 'block';
+      renderHashtags();
+    } else {
+      wrap.style.display = 'none';
+      document.querySelectorAll('.htag-btn').forEach(b => {
+        b.removeAttribute('data-active');
+        b.style.background  = 'var(--surface)';
+        b.style.color       = 'var(--text2)';
+        b.style.borderColor = 'var(--border)';
+      });
+    }
+  }
   updateDepartPreview();
 }
 
@@ -522,18 +538,14 @@ function updateDepartPreview() {
   const plate  = document.getElementById('d_plate')?.value;
   const dv     = document.getElementById('d_dest')?.value;
   const dest   = dv==='__other__' ? document.getElementById('d_destCustom')?.value : dv;
-  const hash   = getSelectedHashtags();
-  document.getElementById('pv_driver').textContent = driver||'—';
-  document.getElementById('pv_plate').textContent  = plate||'—';
-  document.getElementById('pv_dest').textContent   = dest||'—';
-  const hashRow = document.getElementById('pv_hash_row');
-  if (hashRow) {
-    hashRow.style.display = hash ? 'flex' : 'none';
-    document.getElementById('pv_hash').textContent = hash;
-  }
-  document.getElementById('d_preview')?.classList.toggle('show',!!(driver||plate||dest));
+  const tags   = getSelectedTags();
+  const fullDest = tags ? (dest||'') + ' ' + tags : dest;
+  document.getElementById('pv_driver').textContent = driver   || '—';
+  document.getElementById('pv_plate').textContent  = plate    || '—';
+  document.getElementById('pv_dest').textContent   = fullDest || '—';
+  document.getElementById('d_preview')?.classList.toggle('show', !!(driver||plate||dest));
   if (document.getElementById('d_btn'))
-    document.getElementById('d_btn').disabled = !(driver&&plate&&dest);
+    document.getElementById('d_btn').disabled = !(driver && plate && dest);
 }
 
 async function submitDepart() {
@@ -541,7 +553,7 @@ async function submitDepart() {
   const plate  = document.getElementById('d_plate').value;
   const dv     = document.getElementById('d_dest').value;
   const dest   = dv==='__other__' ? document.getElementById('d_destCustom').value.trim() : dv;
-  const hash   = getSelectedHashtags();
+  const hash   = getSelectedTags();
   if (!driver||!plate||!dest) return;
   const btn = document.getElementById('d_btn');
   btn.disabled=true; btn.textContent='⏳ กำลังบันทึก...';
