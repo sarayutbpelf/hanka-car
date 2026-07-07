@@ -1,6 +1,6 @@
 {
-  "name": "หันคา Car — ระบบติดตามรถพยาบาล",
-  "short_name": "หันคา Car",
+  "name": "Hancar — ระบบติดตามรถพยาบาล",
+  "short_name": "Hancar",
   "description": "ระบบติดตามสถานะรถพยาบาล โรงพยาบาลหันคา",
   "start_url": "/hanka-car/",
   "scope": "/hanka-car/",
