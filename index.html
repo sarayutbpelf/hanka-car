@@ -514,21 +514,34 @@ function checkNotifyStatus() {
 // ══════════════════════════════════════════════
 // DATA
 // ══════════════════════════════════════════════
-async function loadAll() {
+let optsLoaded = false; // โหลด opts แค่ครั้งแรก
+
+async function loadAll(forceOpts) {
   if (isLoading) return;
   isLoading = true;
   document.getElementById('fab').classList.add('spin-anim');
   try {
-    const [r1, r2, r3] = await Promise.all([
-      fetch(GAS_URL + '?action=getCarData'),
-      fetch(GAS_URL + '?action=getFormOptions'),
-      fetch(GAS_URL + '?action=getHashtags'),
-    ]);
-    allCars  = await r1.json();
-    opts     = await r2.json();
-    const hd = await r3.json();
-    opts.hashtags         = hd.hashtags        || [];
-    opts.ambulanceKeywords = hd.keywords       || [];
+    if (!optsLoaded || forceOpts) {
+      // โหลดครั้งแรก — ดึงทุกอย่าง
+      const [r1, r2, r3] = await Promise.all([
+        fetch(GAS_URL + '?action=getCarData'),
+        fetch(GAS_URL + '?action=getFormOptions'),
+        fetch(GAS_URL + '?action=getHashtags'),
+      ]);
+      allCars = await r1.json();
+      opts    = await r2.json();
+      const hd = await r3.json();
+      opts.hashtags          = hd.hashtags || [];
+      opts.ambulanceKeywords = hd.keywords || [];
+      optsLoaded = true;
+    } else {
+      // refresh ปกติ — ดึงแค่สถานะรถ (เร็วกว่า 3x)
+      const r1 = await fetch(GAS_URL + '?action=getCarData');
+      allCars  = await r1.json();
+      // อัปเดต freeCars/busyCars ใน opts ด้วย
+      const r2 = await fetch(GAS_URL + '?action=getFormOptions');
+      opts = { ...opts, ...(await r2.json()), hashtags: opts.hashtags, ambulanceKeywords: opts.ambulanceKeywords };
+    }
     updateStats();
     renderDashboard();
     renderDepartForm();
