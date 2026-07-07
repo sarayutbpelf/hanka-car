@@ -365,26 +365,9 @@ window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredInstall = e;
   if (!localStorage.getItem('pwaInstalled') && !localStorage.getItem('installDismissed')) {
-    document.getElementById('installBanner').classList.add('show');
+    document.getElementById('installBanner')?.classList.add('show');
   }
 });
-document.getElementById('btnInstall').onclick = async () => {
-  if (!deferredInstall) return;
-  deferredInstall.prompt();
-  await deferredInstall.userChoice;
-  deferredInstall = null;
-  document.getElementById('installBanner').classList.remove('show');
-};
-document.getElementById('btnDismiss').onclick = () => {
-  document.getElementById('installBanner').classList.remove('show');
-  localStorage.setItem('installDismissed', '1');
-};
-window.addEventListener('appinstalled', () => {
-  localStorage.setItem('pwaInstalled', '1');
-  document.getElementById('installBanner').classList.remove('show');
-  showToast('✅ ติดตั้งแอปแล้ว!', 'ok');
-});
-
 // ══════════════════════════════════════════════
 // NOTIFICATION HISTORY
 // ══════════════════════════════════════════════
@@ -864,7 +847,28 @@ function x(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').re
 function esc(s){return String(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
 setInterval(loadAll, 60000);
-window.onload = () => { loadAll(); checkNotifyStatus(); };
+
+window.onload = () => {
+  // ✅ bind buttons หลัง DOM โหลดเสร็จ
+  document.getElementById('btnInstall').onclick = async () => {
+    if (!deferredInstall) return;
+    deferredInstall.prompt();
+    await deferredInstall.userChoice;
+    deferredInstall = null;
+    document.getElementById('installBanner').classList.remove('show');
+  };
+  document.getElementById('btnDismiss').onclick = () => {
+    document.getElementById('installBanner').classList.remove('show');
+    localStorage.setItem('installDismissed', '1');
+  };
+  window.addEventListener('appinstalled', () => {
+    localStorage.setItem('pwaInstalled', '1');
+    document.getElementById('installBanner').classList.remove('show');
+    showToast('✅ ติดตั้งแอปแล้ว!', 'ok');
+  });
+  loadAll();
+  checkNotifyStatus();
+};
 </script>
 </body>
 </html>
