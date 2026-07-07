@@ -1,0 +1,42 @@
+{
+  "name": "หันคา Car — ระบบติดตามรถพยาบาล",
+  "short_name": "หันคา Car",
+  "description": "ระบบติดตามสถานะรถพยาบาล โรงพยาบาลหันคา",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d2e6e",
+  "theme_color": "#0d2e6e",
+  "lang": "th",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["medical", "utilities"],
+  "shortcuts": [
+    {
+      "name": "ออกงาน",
+      "short_name": "ออกงาน",
+      "description": "บันทึกออกงาน",
+      "url": "/?tab=depart",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "กลับถึง",
+      "short_name": "กลับถึง",
+      "description": "บันทึกกลับถึง",
+      "url": "/?tab=return",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

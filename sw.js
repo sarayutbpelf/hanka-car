@@ -1,0 +1,76 @@
+// ============================================================
+// Service Worker — หันคา Car PWA v2
+// รองรับ: Offline Cache + Firebase Push Notification
+// ============================================================
+importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
+
+firebase.initializeApp({
+  apiKey           : "AIzaSyCRHN0Jgi_OT40YAB_nt7oG49WrUdVduu8",
+  authDomain       : "huncar-82206.firebaseapp.com",
+  projectId        : "huncar-82206",
+  storageBucket    : "huncar-82206.firebasestorage.app",
+  messagingSenderId: "711966399729",
+  appId            : "1:711966399729:web:59ca49b307bc27973e9d50",
+});
+
+const messaging = firebase.messaging();
+const CACHE_NAME = 'hanka-car-v2';
+const CACHE_URLS = ['/', '/index.html', '/manifest.json'];
+
+// ── Install ──
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(CACHE_URLS)));
+  self.skipWaiting();
+});
+
+// ── Activate ──
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+
+// ── Fetch ──
+self.addEventListener('fetch', e => {
+  if (e.request.url.includes('script.google.com') ||
+      e.request.url.includes('firebase') ||
+      e.request.url.includes('googleapis')) return;
+  e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+});
+
+// ── Background Push (เมื่อแอปปิดอยู่) ──
+messaging.onBackgroundMessage(payload => {
+  const { title, body, icon, data } = payload.notification || payload.data || {};
+  return self.registration.showNotification(title || '🚑 หันคา Car', {
+    body    : body   || 'มีการอัปเดตสถานะรถ',
+    icon    : icon   || '/icon-192.png',
+    badge   : '/icon-192.png',
+    vibrate : [200, 100, 200],
+    tag     : 'hanka-status',
+    renotify: true,
+    data    : { url: (data && data.url) || '/' },
+    actions : [
+      { action: 'open',    title: '🔍 ดูสถานะ' },
+      { action: 'dismiss', title: '✕ ปิด'      },
+    ],
+  });
+});
+
+// ── Notification Click ──
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  if (e.action === 'dismiss') return;
+  const url = e.notification.data?.url || '/';
+  e.waitUntil(
+    clients.matchAll({ type:'window', includeUncontrolled:true }).then(list => {
+      for (const c of list) {
+        if ('focus' in c) return c.focus();
+      }
+      if (clients.openWindow) return clients.openWindow(url);
+    })
+  );
+});
