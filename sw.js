@@ -1,5 +1,5 @@
 // ============================================================
-// Service Worker — หันคา Car PWA v2
+// Service Worker — Hancar PWA v2
 // รองรับ: Offline Cache + Firebase Push Notification
 // ============================================================
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
@@ -45,7 +45,7 @@ self.addEventListener('fetch', e => {
 // ── Background Push (เมื่อแอปปิดอยู่) ──
 messaging.onBackgroundMessage(payload => {
   const { title, body, icon, data } = payload.notification || payload.data || {};
-  return self.registration.showNotification(title || '🚑 หันคา Car', {
+  return self.registration.showNotification(title || '🚑 Hancar', {
     body    : body   || 'มีการอัปเดตสถานะรถ',
     icon    : icon   || '/icon-192.png',
     badge   : '/icon-192.png',
