@@ -3,366 +3,591 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>สถานะรถ | รพ.หันคา</title>
+<meta name="theme-color" content="#0d2e6e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="หันคา Car">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>หันคา Car</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=Prompt:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=Prompt:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;width:100%;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 :root{
-  --bg:#f0f7ff;--bg2:#e6f0fb;--surface:#fff;--border:#ccddf5;
-  --blue:#1565d8;--blue-mid:#2d7ef7;--blue-light:#e0edff;
-  --red:#e02040;--red-light:#ffe0e5;--red-soft:#fff4f6;
-  --green:#00994d;--green-mid:#00c060;--green-light:#d6f5e6;--green-soft:#f0fbf5;
-  --orange:#e06a00;--text:#0d2340;--text2:#2a4870;--muted:#6a8aaa;--muted2:#98b4cc;
+  --navy:#0d2e6e; --blue:#1a5ce8; --blue-mid:#2d7ef7;
+  --blue-light:#e0edff; --blue-soft:#f0f5ff;
+  --red:#e02040; --red-light:#ffe0e5; --red-soft:#fff4f6;
+  --green:#00914a; --green-mid:#00b857;
+  --green-light:#d4f4e2; --green-soft:#f0fbf5;
+  --orange:#d96000; --bg:#f0f5fb; --surface:#fff;
+  --border:#dde8f5; --text:#0d1e3c; --text2:#2a4070;
+  --muted:#6a85a8; --muted2:#9ab0cc;
 }
-body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
 
-/* Header */
-.header{position:sticky;top:0;z-index:50;background:rgba(240,247,255,.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1.5px solid var(--border);padding:12px 16px 10px;flex-shrink:0;}
-.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-.logo-wrap{display:flex;align-items:center;gap:10px;}
-.logo{width:38px;height:38px;background:linear-gradient(135deg,#1565d8,#2d7ef7);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
-.logo-text h1{font-family:'Prompt',sans-serif;font-size:.88rem;font-weight:700;color:var(--text);}
-.logo-text p{font-size:.62rem;color:var(--muted);}
-.header-right{display:flex;align-items:center;gap:8px;}
-.live-pill{display:flex;align-items:center;gap:5px;background:var(--green-light);border:1.5px solid rgba(0,153,77,.2);border-radius:20px;padding:4px 10px;}
-.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green-mid);animation:blink 1.5s ease-in-out infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-.live-txt{font-size:.63rem;font-weight:800;color:var(--green);}
-.clock-txt{font-family:'Prompt',sans-serif;font-size:1rem;font-weight:700;color:var(--blue);background:var(--blue-light);border-radius:8px;padding:3px 9px;}
-.summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
-.pill{border-radius:10px;padding:9px 8px;text-align:center;border:1.5px solid transparent;}
-.pill-total{background:var(--blue-light);border-color:rgba(21,101,216,.15);}
-.pill-busy{background:var(--red-soft);border-color:rgba(224,32,64,.15);}
-.pill-free{background:var(--green-soft);border-color:rgba(0,153,77,.15);}
-.pill-num{font-family:'Prompt',sans-serif;font-size:1.7rem;font-weight:800;line-height:1;}
-.pill-total .pill-num{color:var(--blue);}
-.pill-busy .pill-num{color:var(--red);}
-.pill-free .pill-num{color:var(--green);}
-.pill-lbl{font-size:.6rem;font-weight:600;margin-top:2px;}
-.pill-total .pill-lbl{color:rgba(21,101,216,.6);}
-.pill-busy .pill-lbl{color:rgba(224,32,64,.6);}
-.pill-free .pill-lbl{color:rgba(0,153,77,.6);}
+/* INSTALL BANNER */
+#installBanner{display:none;position:fixed;bottom:76px;left:12px;right:12px;z-index:500;background:var(--navy);color:#fff;border-radius:16px;padding:14px 16px;flex-direction:row;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(13,46,110,.4);animation:slideUp .4s ease;}
+#installBanner.show{display:flex;}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.install-icon{font-size:2rem;flex-shrink:0;}
+.install-text h4{font-size:.86rem;font-weight:700;}
+.install-text p{font-size:.7rem;color:rgba(255,255,255,.7);margin-top:2px;}
+.install-actions{margin-left:auto;display:flex;gap:8px;flex-shrink:0;}
+.btn-install{background:var(--blue-mid);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-family:'Sarabun',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;}
+.btn-dismiss{background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:8px;padding:8px 10px;cursor:pointer;}
 
-/* Tabs */
-.tabs-wrap{background:rgba(240,247,255,.95);backdrop-filter:blur(12px);border-bottom:1.5px solid var(--border);padding:0 14px;display:flex;position:sticky;top:122px;z-index:40;flex-shrink:0;}
-.tab-btn{flex:1;background:none;border:none;padding:11px 4px;font-family:'Sarabun',sans-serif;font-size:.82rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2.5px solid transparent;display:flex;align-items:center;justify-content:center;gap:5px;transition:color .2s,border-color .2s;}
-.tab-btn.active-all{color:var(--blue);border-bottom-color:var(--blue);}
-.tab-btn.active-busy{color:var(--red);border-bottom-color:var(--red);}
-.tab-btn.active-free{color:var(--green);border-bottom-color:var(--green);}
-.tab-count{font-size:.62rem;font-weight:800;border-radius:10px;padding:1px 7px;}
-.active-all .tab-count{background:var(--blue-light);color:var(--blue);}
-.active-busy .tab-count{background:var(--red-light);color:var(--red);}
-.active-free .tab-count{background:var(--green-light);color:var(--green);}
-.tab-btn:not(.active-all):not(.active-busy):not(.active-free) .tab-count{background:var(--bg2);color:var(--muted);}
+/* HEADER */
+.app-header{background:linear-gradient(135deg,var(--navy) 0%,#1a45a0 100%);padding:16px 16px 24px;flex-shrink:0;position:relative;overflow:hidden;}
+.app-header::after{content:'';position:absolute;bottom:-28px;left:-5%;right:-5%;height:56px;background:var(--bg);border-radius:50%;}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-icon{width:40px;height:40px;background:rgba(255,255,255,.15);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;}
+.brand-text h1{font-family:'Prompt',sans-serif;font-size:.9rem;font-weight:700;color:#fff;line-height:1.2;}
+.brand-text p{font-size:.62rem;color:rgba(255,255,255,.55);}
+.header-actions{display:flex;align-items:center;gap:8px;}
+.live-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.12);border-radius:20px;padding:5px 10px;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 2px rgba(74,222,128,.3);animation:blink 1.5s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.live-txt{font-size:.62rem;font-weight:800;color:#fff;letter-spacing:.5px;}
+.notify-btn{width:36px;height:36px;background:rgba(255,255,255,.12);border:none;border-radius:10px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;position:relative;transition:background .2s;}
+.notify-btn:active{background:rgba(255,255,255,.25);}
+.notify-badge{position:absolute;top:-3px;right:-3px;width:12px;height:12px;background:var(--red);border-radius:50%;border:2px solid var(--navy);display:none;}
+.notify-badge.show{display:block;}
+.notify-btn.enabled{background:rgba(74,222,128,.2);}
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;position:relative;z-index:1;}
+.stat-pill{background:rgba(255,255,255,.12);border-radius:12px;padding:10px 6px;text-align:center;}
+.stat-num{font-family:'Prompt',sans-serif;font-size:1.7rem;font-weight:800;line-height:1;color:#fff;}
+.stat-num.busy{color:#fca5a5;} .stat-num.free{color:#86efac;}
+.stat-lbl{font-size:.6rem;font-weight:600;color:rgba(255,255,255,.6);margin-top:2px;}
 
-/* Content */
-.content{padding:12px 12px 80px;flex:1;}
-.date-bar{font-size:.68rem;font-weight:600;color:var(--muted);text-align:center;margin-bottom:12px;}
+/* TABS */
+.tabs{display:flex;background:var(--surface);border-bottom:1.5px solid var(--border);flex-shrink:0;position:relative;z-index:10;margin-top:-1px;}
+.tab-btn{flex:1;background:none;border:none;padding:12px 4px;font-family:'Sarabun',sans-serif;font-size:.8rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2.5px solid transparent;transition:color .2s,border-color .2s;display:flex;align-items:center;justify-content:center;gap:4px;}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);}
+.tab-btn.active.tab-red{color:var(--red);border-bottom-color:var(--red);}
+.tab-btn.active.tab-green{color:var(--green);border-bottom-color:var(--green);}
+.tab-count{font-size:.6rem;font-weight:800;border-radius:8px;padding:1px 6px;}
+.tab-btn.active .tab-count{background:var(--blue-light);color:var(--blue);}
+.tab-btn.active.tab-red .tab-count{background:var(--red-light);color:var(--red);}
+.tab-btn.active.tab-green .tab-count{background:var(--green-light);color:var(--green);}
+.tab-btn:not(.active) .tab-count{background:var(--bg);color:var(--muted);}
 
-/* Cards */
-.car-card{background:var(--surface);border-radius:14px;margin-bottom:10px;border:1.5px solid var(--border);box-shadow:0 2px 10px rgba(21,101,216,.05);animation:up .3s ease both;position:relative;overflow:hidden;}
-@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+/* SCREENS */
+.screens{flex:1;overflow:hidden;position:relative;}
+.screen{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px 24px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.screen.active{opacity:1;pointer-events:auto;}
+
+/* CAR CARDS */
+.car-card{background:var(--surface);border-radius:14px;margin-bottom:10px;overflow:hidden;border:1.5px solid var(--border);box-shadow:0 2px 10px rgba(13,46,110,.06);animation:fadeUp .3s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 .car-card.busy{border-top:3px solid var(--red);}
 .car-card.free{border-top:3px solid var(--green-mid);}
-.car-card.busy{background:linear-gradient(160deg,#fff8f9 0%,#fff 50%);}
-.car-card.free{background:linear-gradient(160deg,#f6fff9 0%,#fff 50%);}
-.card-head{display:flex;align-items:flex-start;justify-content:space-between;padding:13px 14px 8px;}
-.plate{font-family:'Prompt',sans-serif;font-size:1.25rem;font-weight:800;letter-spacing:.5px;color:var(--text);}
-.car-name{font-size:.68rem;color:var(--muted);margin-top:2px;}
-.status-tag{font-size:.68rem;font-weight:800;padding:5px 11px;border-radius:20px;white-space:nowrap;}
-.tag-busy{background:var(--red-light);color:var(--red);border:1.5px solid rgba(224,32,64,.2);}
-.tag-free{background:var(--green-light);color:var(--green);border:1.5px solid rgba(0,153,77,.2);}
-.card-body{padding:0 14px 13px;}
+.car-head{display:flex;justify-content:space-between;align-items:flex-start;padding:13px 14px 7px;}
+.car-plate{font-family:'Prompt',sans-serif;font-size:1.25rem;font-weight:800;color:var(--text);letter-spacing:.5px;}
+.car-type{font-size:.65rem;color:var(--muted);margin-top:2px;}
+.status-tag{font-size:.65rem;font-weight:800;padding:4px 10px;border-radius:16px;white-space:nowrap;}
+.tag-busy{background:var(--red-light);color:var(--red);}
+.tag-free{background:var(--green-light);color:var(--green);}
+.car-body{padding:0 14px 13px;}
 .divider{height:1px;background:var(--border);margin-bottom:10px;}
-.info-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;}
+.info-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;font-size:.86rem;}
 .info-row:last-child{margin-bottom:0;}
-.iico{font-size:.9rem;width:18px;flex-shrink:0;margin-top:1px;}
-.ilbl{font-size:.6rem;font-weight:600;color:var(--muted);margin-bottom:1px;}
-.ival{font-size:.88rem;font-weight:700;color:var(--text2);}
+.iico{width:18px;flex-shrink:0;font-size:.9rem;}
+.ival{font-weight:600;color:var(--text2);}
 .ival.dest{color:var(--orange);}
 .ival.ready{color:var(--green);}
-.time-row{display:flex;gap:7px;margin-top:9px;}
-.tchip{flex:1;border-radius:9px;padding:8px;text-align:center;border:1.5px solid var(--border);}
-.tchip-out{background:var(--red-soft);border-color:rgba(224,32,64,.15);}
-.tchip-wait{background:var(--bg2);border-color:var(--border);}
-.tchip-lbl{font-size:.58rem;font-weight:600;color:var(--muted);margin-bottom:3px;}
-.tchip-val{font-family:'Prompt',sans-serif;font-size:1rem;font-weight:700;}
-.tv-out{color:var(--red);}
-.tv-wait{color:var(--muted2);font-family:'Sarabun',sans-serif;font-size:.8rem;font-weight:400;}
+.time-chips{display:flex;gap:7px;margin-top:8px;}
+.tchip{flex:1;border-radius:9px;padding:7px;text-align:center;border:1.5px solid var(--border);}
+.tchip.out{background:var(--red-soft);border-color:rgba(224,32,64,.15);}
+.tchip.wait{background:var(--bg);border-color:var(--border);}
+.tchip-lbl{font-size:.56rem;font-weight:600;color:var(--muted);margin-bottom:2px;}
+.tchip-val{font-family:'Prompt',sans-serif;font-size:1rem;font-weight:700;color:var(--red);}
+.tchip-wait-val{font-size:.78rem;color:var(--muted2);}
 
-/* Empty */
-.empty-state{text-align:center;padding:56px 20px;color:var(--muted);}
-.empty-icon{font-size:3rem;margin-bottom:12px;}
-.empty-txt{font-size:.95rem;font-weight:700;color:var(--text2);}
+/* FORM */
+.form-card{background:var(--surface);border-radius:14px;border:1.5px solid var(--border);padding:18px;margin-bottom:12px;box-shadow:0 2px 10px rgba(13,46,110,.06);}
+.form-title{font-size:.7rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:.68rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.sel-wrap{position:relative;}
+.sel-wrap::after{content:'▾';position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:.8rem;}
+select,input[type=text]{width:100%;appearance:none;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:13px 36px 13px 14px;font-family:'Sarabun',sans-serif;font-size:1rem;color:var(--text);outline:none;transition:border-color .2s;}
+select:focus,input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,92,232,.1);}
+input[type=text]{padding-right:14px;}
+.custom-input{margin-top:8px;display:none;}
+.custom-input.show{display:block;}
+.preview-box{background:var(--blue-soft);border:1.5px solid rgba(45,126,247,.2);border-radius:10px;padding:13px;margin-bottom:14px;display:none;}
+.preview-box.show{display:block;}
+.prev-row{display:flex;gap:8px;margin-bottom:6px;font-size:.88rem;}
+.prev-row:last-child{margin-bottom:0;}
+.prev-val{font-weight:700;color:var(--text2);}
+.return-item{background:var(--surface);border:2px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:border-color .2s,box-shadow .2s;}
+.return-item.selected{border-color:var(--green);box-shadow:0 0 0 3px rgba(0,145,74,.1);}
+.radio-circle{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.return-item.selected .radio-circle{border-color:var(--green);background:var(--green);}
+.radio-check{color:#fff;font-size:.72rem;font-weight:800;display:none;}
+.return-item.selected .radio-check{display:block;}
+.return-info{flex:1;}
+.return-plate{font-size:1rem;font-weight:800;color:var(--text);}
+.return-sub{font-size:.78rem;color:var(--muted);margin-top:3px;}
+.return-dest{font-size:.82rem;font-weight:600;color:var(--orange);margin-top:2px;}
+.btn-submit{width:100%;border:none;border-radius:12px;padding:16px;font-family:'Sarabun',sans-serif;font-size:1.05rem;font-weight:800;cursor:pointer;transition:transform .15s,opacity .2s;box-shadow:0 6px 20px rgba(0,0,0,.15);}
+.btn-submit:active{transform:scale(.97);}
+.btn-submit:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+.btn-blue{background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:#fff;}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--green-mid));color:#fff;}
 
-/* Skeleton */
-.skel{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;animation:pulse 1.6s ease-in-out infinite;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
-.skel-line{background:var(--bg2);border-radius:6px;margin-bottom:9px;}
+/* EMPTY / LOADER */
+.empty-state{text-align:center;padding:48px 16px;color:var(--muted);}
+.empty-icon{font-size:2.8rem;margin-bottom:12px;}
+.empty-txt{font-size:.9rem;font-weight:700;color:var(--text2);}
+.empty-sub{font-size:.76rem;margin-top:4px;}
+.loader-state{text-align:center;padding:48px 16px;color:var(--muted);}
+.spin{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:sp .7s linear infinite;margin:0 auto 12px;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.skel{background:var(--surface);border-radius:14px;padding:16px;margin-bottom:10px;border:1.5px solid var(--border);}
+.skel-line{background:var(--bg);border-radius:6px;margin-bottom:8px;animation:pulse 1.6s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.success-state{text-align:center;padding:40px 20px;}
+.success-icon{font-size:4rem;margin-bottom:14px;}
+.success-title{font-family:'Prompt',sans-serif;font-size:1.1rem;font-weight:800;color:var(--text);margin-bottom:6px;}
+.success-detail{font-size:.86rem;color:var(--muted);line-height:1.7;}
+.btn-back{margin-top:18px;display:inline-block;background:var(--blue-soft);color:var(--blue);border:none;border-radius:10px;padding:10px 22px;font-family:'Sarabun',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;}
+
+/* TOAST */
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%) translateY(30px);background:var(--text);color:#fff;padding:10px 20px;border-radius:22px;font-size:.82rem;font-weight:600;z-index:999;opacity:0;transition:all .3s;box-shadow:0 4px 16px rgba(0,0,0,.2);white-space:nowrap;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.ok{background:var(--green);}
+.toast.err{background:var(--red);}
 
 /* FAB */
-.fab{position:fixed;bottom:20px;right:14px;z-index:100;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--blue-mid),var(--blue));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 4px 16px rgba(21,101,216,.35);transition:transform .15s;}
+.fab{position:fixed;bottom:16px;right:14px;z-index:100;width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--blue-mid),var(--blue));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#fff;box-shadow:0 4px 16px rgba(26,92,232,.38);transition:transform .15s;}
 .fab:active{transform:scale(.9);}
-.fab.spin{animation:sp .7s linear infinite;}
-@keyframes sp{to{transform:rotate(360deg)}}
+.fab.spin-anim{animation:sp .7s linear infinite;}
 
-/* History */
-.hist-filter{display:flex;gap:8px;margin-bottom:14px;align-items:center;}
-.hist-filter input[type=date]{
-  flex:1;background:var(--surface);border:1.5px solid var(--border);
-  border-radius:10px;padding:10px 12px;
-  font-family:'Sarabun',sans-serif;font-size:.88rem;color:var(--text);
-  outline:none;
-}
-.hist-filter input:focus{border-color:var(--blue-mid);}
-.btn-filter{
-  background:linear-gradient(135deg,var(--blue),var(--blue-mid));
-  color:#fff;border:none;border-radius:10px;
-  padding:10px 16px;font-family:'Sarabun',sans-serif;
-  font-size:.88rem;font-weight:700;cursor:pointer;white-space:nowrap;
-}
-.hist-card{
-  background:var(--surface);border:1.5px solid var(--border);
-  border-radius:12px;padding:14px;margin-bottom:10px;
-  animation:up .3s ease both;
-  box-shadow:0 2px 8px rgba(21,101,216,.04);
-}
-.hist-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
-.hist-plate{font-family:'Prompt',sans-serif;font-size:1.1rem;font-weight:800;color:var(--text);}
-.hist-carname{font-size:.68rem;color:var(--muted);margin-top:2px;}
-.hist-date-badge{
-  font-size:.68rem;font-weight:700;
-  background:var(--blue-light);color:var(--blue);
-  padding:3px 10px;border-radius:20px;white-space:nowrap;
-}
-.hist-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;}
-.hist-row:last-child{margin-bottom:0;}
-.hist-ico{font-size:.9rem;width:18px;flex-shrink:0;}
-.hist-lbl{font-size:.6rem;font-weight:600;color:var(--muted);margin-bottom:1px;}
-.hist-val{font-size:.85rem;font-weight:600;color:var(--text2);}
-.hist-val.dest{color:var(--orange);}
-.hist-time-row{display:flex;gap:7px;margin-top:8px;}
-.hist-chip{
-  flex:1;text-align:center;border-radius:8px;padding:7px 6px;
-  border:1.5px solid var(--border);
-}
-.hc-out{background:var(--red-soft);border-color:rgba(224,32,64,.15);}
-.hc-back{background:var(--green-soft);border-color:rgba(0,153,77,.15);}
-.hc-lbl{font-size:.58rem;font-weight:600;color:var(--muted);margin-bottom:2px;}
-.hc-val{font-family:'Prompt',sans-serif;font-size:.95rem;font-weight:700;}
-.hcv-out{color:var(--red);}
-.hcv-back{color:var(--green);}
-.hcv-empty{color:var(--muted2);font-family:'Sarabun',sans-serif;font-size:.78rem;font-weight:400;}
-.hist-empty{text-align:center;padding:48px 20px;color:var(--muted);}
-.hist-empty-icon{font-size:2.5rem;margin-bottom:10px;}
-
-/* Update bar */
-.update-bar{text-align:center;padding:8px 0;font-size:.63rem;color:var(--muted2);flex-shrink:0;}
+/* UPDATE BAR */
+.update-bar{text-align:center;padding:5px 0;font-size:.6rem;color:var(--muted2);flex-shrink:0;background:var(--surface);border-top:1px solid var(--border);}
 </style>
 </head>
 <body>
 
-<div class="header">
+<!-- Install Banner -->
+<div id="installBanner">
+  <div class="install-icon">📱</div>
+  <div class="install-text">
+    <h4>ติดตั้งแอปบนมือถือ</h4>
+    <p>เข้าใช้งานเร็วขึ้น + รับการแจ้งเตือน</p>
+  </div>
+  <div class="install-actions">
+    <button class="btn-install" id="btnInstall">ติดตั้ง</button>
+    <button class="btn-dismiss" id="btnDismiss">✕</button>
+  </div>
+</div>
+
+<!-- Header -->
+<div class="app-header">
   <div class="header-top">
-    <div class="logo-wrap">
-      <div class="logo">🚑</div>
-      <div class="logo-text">
-        <h1>สถานะรถ รพ.หันคา</h1>
-        <p>Vehicle Status Dashboard</p>
+    <div class="brand">
+      <div class="brand-icon">🚑</div>
+      <div class="brand-text">
+        <h1>หันคา Car</h1>
+        <p>ระบบติดตามรถพยาบาล</p>
       </div>
     </div>
-    <div class="header-right">
+    <div class="header-actions">
       <div class="live-pill"><div class="live-dot"></div><span class="live-txt">LIVE</span></div>
-      <div class="clock-txt" id="clock">--:--</div>
+      <button class="notify-btn" id="notifyBtn" onclick="requestNotify()" title="เปิดการแจ้งเตือน">
+        🔔<span class="notify-badge" id="notifyBadge"></span>
+      </button>
     </div>
   </div>
-  <div class="summary">
-    <div class="pill pill-total"><div class="pill-num" id="pTotal">—</div><div class="pill-lbl">ทั้งหมด</div></div>
-    <div class="pill pill-busy"><div class="pill-num" id="pBusy">—</div><div class="pill-lbl">ออกงาน</div></div>
-    <div class="pill pill-free"><div class="pill-num" id="pFree">—</div><div class="pill-lbl">ว่าง</div></div>
+  <div class="stats-row">
+    <div class="stat-pill"><div class="stat-num" id="stTotal">—</div><div class="stat-lbl">ทั้งหมด</div></div>
+    <div class="stat-pill"><div class="stat-num busy" id="stBusy">—</div><div class="stat-lbl">ออกงาน</div></div>
+    <div class="stat-pill"><div class="stat-num free" id="stFree">—</div><div class="stat-lbl">ว่าง</div></div>
   </div>
 </div>
 
-<div class="tabs-wrap">
-  <button class="tab-btn active-all" id="tab-all" onclick="switchTab('all')">🚐 ทั้งหมด <span class="tab-count" id="tc-all">—</span></button>
-  <button class="tab-btn" id="tab-busy" onclick="switchTab('busy')">🔴 ออกงาน <span class="tab-count" id="tc-busy">—</span></button>
-  <button class="tab-btn" id="tab-free" onclick="switchTab('free')">🟢 ว่าง <span class="tab-count" id="tc-free">—</span></button>
-  <button class="tab-btn" id="tab-hist" onclick="switchTab('hist')">📋 ประวัติ</button>
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab-btn active" id="tab-dashboard" onclick="showTab('dashboard')">🚐 สถานะ <span class="tab-count" id="tc-all">—</span></button>
+  <button class="tab-btn" id="tab-depart" onclick="showTab('depart')">📤 ออกงาน</button>
+  <button class="tab-btn" id="tab-return" onclick="showTab('return')">📥 กลับถึง <span class="tab-count" id="tc-busy">—</span></button>
 </div>
 
-<div class="content" id="content">
-  <div class="date-bar" id="dateBar"></div>
-  <div class="skel"><div class="skel-line" style="height:22px;width:45%;margin-bottom:14px"></div><div class="skel-line" style="height:13px;width:75%"></div><div class="skel-line" style="height:13px;width:60%"></div></div>
-  <div class="skel"><div class="skel-line" style="height:22px;width:40%;margin-bottom:14px"></div><div class="skel-line" style="height:13px;width:65%"></div></div>
+<!-- Screens -->
+<div class="screens">
+  <div class="screen active" id="screen-dashboard">
+    <div id="carList">
+      <div class="skel"><div class="skel-line" style="height:20px;width:45%;margin-bottom:12px"></div><div class="skel-line" style="height:13px;width:70%"></div></div>
+      <div class="skel"><div class="skel-line" style="height:20px;width:38%"></div></div>
+    </div>
+  </div>
+  <div class="screen" id="screen-depart">
+    <div id="departContent"><div class="loader-state"><div class="spin"></div>กำลังโหลด...</div></div>
+  </div>
+  <div class="screen" id="screen-return">
+    <div id="returnContent"><div class="loader-state"><div class="spin"></div>กำลังโหลด...</div></div>
+  </div>
 </div>
 
-<div class="update-bar" id="updateBar">กำลังโหลด...</div>
-<button class="fab" id="fab" onclick="load()">🔄</button>
+<div class="update-bar" id="updateBar">กำลังโหลดข้อมูล...</div>
+<button class="fab" id="fab" onclick="loadAll()">🔄</button>
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
 
 <script>
-const GAS = 'https://script.google.com/macros/s/AKfycbxTkj0fNXrmJi5osDZJmFwH1Ab4O57SIpu7zPNLhc6f81Z8uOTl2z3v0Jj11ZAwGKoobQ/exec';
-let all = [], tab = 'all', loading = false;
+// ══════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════
+const GAS_URL  = 'https://script.google.com/macros/s/AKfycbxTkj0fNXrmJi5osDZJmFwH1Ab4O57SIpu7zPNLhc6f81Z8uOTl2z3v0Jj11ZAwGKoobQ/exec';
+const VAPID_KEY = 'BLTcclgo544kLcSj1a4r-H6tN7DH3zy7BTYVq-iCmDJX2dqxzDZPgJit8T3yooqxgH5w74Y333H4V8AeoB1u4zU';
 
-// Clock
-setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleTimeString('th-TH',{hour12:false,hour:'2-digit',minute:'2-digit'});},1000);
-document.getElementById('clock').textContent=new Date().toLocaleTimeString('th-TH',{hour12:false,hour:'2-digit',minute:'2-digit'});
+// ── Firebase Init ──
+firebase.initializeApp({
+  apiKey           : "AIzaSyCRHN0Jgi_OT40YAB_nt7oG49WrUdVduu8",
+  authDomain       : "huncar-82206.firebaseapp.com",
+  projectId        : "huncar-82206",
+  storageBucket    : "huncar-82206.firebasestorage.app",
+  messagingSenderId: "711966399729",
+  appId            : "1:711966399729:web:59ca49b307bc27973e9d50",
+});
+const messaging = firebase.messaging();
 
-// Date
-document.getElementById('dateBar').textContent=new Date().toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let opts = null, allCars = [], selectedReturnPlate = null, isLoading = false, deferredInstall = null;
 
-async function load() {
-  if (loading) return;
-  loading = true;
-  document.getElementById('fab').classList.add('spin');
+// ══════════════════════════════════════════════
+// SERVICE WORKER
+// ══════════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(e => console.log('SW error:', e));
+}
+
+// ══════════════════════════════════════════════
+// INSTALL BANNER
+// ══════════════════════════════════════════════
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstall = e;
+  if (!localStorage.getItem('pwaInstalled') && !localStorage.getItem('installDismissed')) {
+    document.getElementById('installBanner').classList.add('show');
+  }
+});
+document.getElementById('btnInstall').onclick = async () => {
+  if (!deferredInstall) return;
+  deferredInstall.prompt();
+  await deferredInstall.userChoice;
+  deferredInstall = null;
+  document.getElementById('installBanner').classList.remove('show');
+};
+document.getElementById('btnDismiss').onclick = () => {
+  document.getElementById('installBanner').classList.remove('show');
+  localStorage.setItem('installDismissed', '1');
+};
+window.addEventListener('appinstalled', () => {
+  localStorage.setItem('pwaInstalled', '1');
+  document.getElementById('installBanner').classList.remove('show');
+  showToast('✅ ติดตั้งแอปแล้ว!', 'ok');
+});
+
+// ══════════════════════════════════════════════
+// PUSH NOTIFICATION
+// ══════════════════════════════════════════════
+async function requestNotify() {
+  if (!('Notification' in window)) {
+    showToast('เบราว์เซอร์นี้ไม่รองรับการแจ้งเตือน', 'err'); return;
+  }
+
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') {
+    showToast('ไม่ได้รับอนุญาตการแจ้งเตือน', 'err'); return;
+  }
+
   try {
-    const r = await fetch(GAS + '?action=getCarData');
-    const d = await r.json();
-    all = d.cars || d || [];
-    renderAll();
-    document.getElementById('updateBar').textContent = 'อัปเดตล่าสุด ' + new Date().toLocaleTimeString('th-TH');
+    const sw    = await navigator.serviceWorker.ready;
+    const token = await messaging.getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: sw });
+    if (token) {
+      // ส่ง token ไปบันทึกที่ GAS
+      await fetch(GAS_URL + '?action=saveFcmToken&token=' + encodeURIComponent(token));
+      localStorage.setItem('fcmToken', token);
+      document.getElementById('notifyBtn').classList.add('enabled');
+      document.getElementById('notifyBadge').classList.remove('show');
+      showToast('✅ เปิดการแจ้งเตือนแล้ว', 'ok');
+    }
   } catch(e) {
-    document.getElementById('updateBar').textContent = 'โหลดไม่สำเร็จ กดรีเฟรช';
+    console.error('FCM error:', e);
+    showToast('เกิดข้อผิดพลาด: ' + e.message, 'err');
   }
-  loading = false;
-  document.getElementById('fab').classList.remove('spin');
 }
 
-function renderAll() {
-  const busy = all.filter(c=>c.status==='ออกงาน');
-  const free = all.filter(c=>c.status!=='ออกงาน');
-  document.getElementById('pTotal').textContent = all.length;
-  document.getElementById('pBusy').textContent  = busy.length;
-  document.getElementById('pFree').textContent  = free.length;
-  document.getElementById('tc-all').textContent  = all.length;
-  document.getElementById('tc-busy').textContent = busy.length;
-  document.getElementById('tc-free').textContent = free.length;
-  renderTab(tab);
-}
+// รับ Notification เมื่อแอปเปิดอยู่ (Foreground)
+messaging.onMessage(payload => {
+  const n = payload.notification || {};
+  showToast((n.title || '🚑') + ' ' + (n.body || ''), 'ok');
+  // แสดง native notification ด้วย
+  if (Notification.permission === 'granted') {
+    new Notification(n.title || '🚑 หันคา Car', {
+      body : n.body || '',
+      icon : '/icon-192.png',
+      badge: '/icon-192.png',
+    });
+  }
+  // reload ข้อมูลใหม่
+  loadAll();
+});
 
-function renderTab(t) {
-  let cars;
-  if (t==='busy') cars=all.filter(c=>c.status==='ออกงาน');
-  else if (t==='free') cars=all.filter(c=>c.status!=='ออกงาน');
-  else cars=[...all].sort((a,b)=>(a.status==='ออกงาน')===(b.status==='ออกงาน')?0:a.status==='ออกงาน'?-1:1);
-  const content = document.getElementById('content');
-  if (!cars.length) {
-    const msgs={busy:'ไม่มีรถออกงาน',free:'รถทุกคันออกงาน',all:'ไม่มีข้อมูลรถ'};
-    content.innerHTML=`<div class="date-bar" id="dateBar"></div><div class="empty-state"><div class="empty-icon">${t==='busy'?'🟢':t==='free'?'🚐':'🚑'}</div><div class="empty-txt">${msgs[t]}</div></div>`;
+function checkNotifyStatus() {
+  if (!('Notification' in window)) return;
+  const token = localStorage.getItem('fcmToken');
+  if (Notification.permission === 'granted' && token) {
+    document.getElementById('notifyBtn').classList.add('enabled');
   } else {
-    content.innerHTML='<div class="date-bar" id="dateBar"></div>'+cars.map((c,i)=>card(c,i)).join('');
+    document.getElementById('notifyBadge').classList.add('show');
   }
-  document.getElementById('dateBar').textContent=new Date().toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 }
 
-function card(c,i) {
-  const busy=c.status==='ออกงาน';
-  return `<div class="car-card ${busy?'busy':'free'}" style="animation-delay:${i*.06}s">
-    <div class="card-head">
-      <div><div class="plate">${x(c.plate)}</div>${c.carName?`<div class="car-name">${x(c.carName)}</div>`:''}</div>
-      <div class="status-tag ${busy?'tag-busy':'tag-free'}">${busy?'🔴 ออกงาน':'🟢 ว่าง'}</div>
+// ══════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════
+async function loadAll() {
+  if (isLoading) return;
+  isLoading = true;
+  document.getElementById('fab').classList.add('spin-anim');
+  try {
+    const [r1, r2] = await Promise.all([
+      fetch(GAS_URL + '?action=getCarData'),
+      fetch(GAS_URL + '?action=getFormOptions'),
+    ]);
+    allCars = await r1.json();
+    opts    = await r2.json();
+    updateStats();
+    renderDashboard();
+    renderDepartForm();
+    renderReturnForm();
+    document.getElementById('updateBar').textContent =
+      'อัปเดตล่าสุด ' + new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+  } catch(e) {
+    showToast('โหลดข้อมูลไม่สำเร็จ','err');
+  }
+  isLoading = false;
+  document.getElementById('fab').classList.remove('spin-anim');
+}
+
+function updateStats() {
+  const busy = allCars.filter(c => c.status==='ออกงาน');
+  const free = allCars.filter(c => c.status!=='ออกงาน');
+  document.getElementById('stTotal').textContent = allCars.length;
+  document.getElementById('stBusy').textContent  = busy.length;
+  document.getElementById('stFree').textContent  = free.length;
+  document.getElementById('tc-all').textContent  = allCars.length;
+  document.getElementById('tc-busy').textContent = busy.length;
+}
+
+// ══════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════
+function renderDashboard() {
+  const sorted = [...allCars].sort((a,b) =>
+    (a.status==='ออกงาน')===(b.status==='ออกงาน')?0:a.status==='ออกงาน'?-1:1);
+  document.getElementById('carList').innerHTML = sorted.length
+    ? sorted.map((c,i) => buildCarCard(c,i)).join('')
+    : '<div class="empty-state"><div class="empty-icon">🚑</div><div class="empty-txt">ไม่มีข้อมูลรถ</div></div>';
+}
+
+function buildCarCard(c,i) {
+  const busy = c.status==='ออกงาน';
+  return `<div class="car-card ${busy?'busy':'free'}" style="animation-delay:${i*.05}s">
+    <div class="car-head">
+      <div><div class="car-plate">${x(c.plate)}</div>${c.carName?`<div class="car-type">${x(c.carName)}</div>`:''}</div>
+      <span class="status-tag ${busy?'tag-busy':'tag-free'}">${busy?'🔴 ออกงาน':'🟢 ว่าง'}</span>
     </div>
-    <div class="card-body"><div class="divider"></div>
-    ${busy?`
-      <div class="info-row"><span class="iico">👤</span><div><div class="ilbl">พนักงานขับรถ</div><div class="ival">${x(c.driver)||'—'}</div></div></div>
-      <div class="info-row"><span class="iico">📍</span><div><div class="ilbl">ปลายทาง</div><div class="ival dest">${x(c.dest)||'—'}</div></div></div>
-      <div class="time-row">
-        <div class="tchip tchip-out"><div class="tchip-lbl">🕐 เวลาออก</div><div class="tchip-val tv-out">${x(c.timeOut)||'—'}</div></div>
-        <div class="tchip tchip-wait"><div class="tchip-lbl">✅ กลับถึง</div><div class="tchip-val tv-wait">รอกลับ...</div></div>
-      </div>`:`
-      <div class="info-row"><span class="iico">✅</span><div><div class="ilbl">สถานะ</div><div class="ival ready">พร้อมใช้งาน</div></div></div>
-      ${c.timeBack?`<div class="info-row"><span class="iico">🕐</span><div><div class="ilbl">กลับล่าสุด</div><div class="ival">${x(c.timeBack)} น.</div></div></div>`:''}`}
+    <div class="car-body"><div class="divider"></div>
+      ${busy?`
+        <div class="info-row"><span class="iico">👤</span><span class="ival">${x(c.driver)||'—'}</span></div>
+        <div class="info-row"><span class="iico">📍</span><span class="ival dest">${x(c.dest)||'—'}</span></div>
+        <div class="time-chips">
+          <div class="tchip out"><div class="tchip-lbl">🕐 เวลาออก</div><div class="tchip-val">${x(c.timeOut)||'—'}</div></div>
+          <div class="tchip wait"><div class="tchip-lbl">✅ กลับถึง</div><div class="tchip-wait-val">รอกลับ...</div></div>
+        </div>`:`
+        <div class="info-row"><span class="iico">✅</span><span class="ival ready">พร้อมใช้งาน</span></div>
+        ${c.timeBack?`<div class="info-row"><span class="iico">🕐</span><span class="ival">กลับล่าสุด ${x(c.timeBack)} น.</span></div>`:''}`}
     </div></div>`;
 }
 
-// ─── History ───
-let histData = [];
-let histLoading = false;
-
-async function loadHistory(dateStr) {
-  histLoading = true;
-  const content = document.getElementById('content');
-  content.innerHTML = `
-    <div class="hist-filter">
-      <input type="date" id="histDate" value="${dateStr||getTodayStr()}" max="${getTodayStr()}">
-      <button class="btn-filter" onclick="searchHistory()">🔍 ค้นหา</button>
-    </div>
-    <div class="date-bar">กำลังโหลด...</div>`;
-
-  try {
-    const d = document.getElementById('histDate')?.value || getTodayStr();
-    // แปลง yyyy-mm-dd → dd/MM/yyyy
-    const [y,m,day] = d.split('-');
-    const thDate = day+'/'+m+'/'+y;
-    const r = await fetch(GAS + '?action=getHistory&date=' + encodeURIComponent(thDate));
-    histData = await r.json();
-    renderHistory(d);
-  } catch(e) {
-    content.innerHTML = '<div class="hist-empty"><div class="hist-empty-icon">❌</div><div>โหลดข้อมูลไม่สำเร็จ</div></div>';
-  }
-  histLoading = false;
-}
-
-function getTodayStr() {
-  const d = new Date();
-  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-}
-
-function searchHistory() {
-  const d = document.getElementById('histDate')?.value || getTodayStr();
-  loadHistory(d);
-}
-
-function renderHistory(dateStr) {
-  const content = document.getElementById('content');
-  const [y,m,day] = (dateStr||getTodayStr()).split('-');
-  const thDate = day+'/'+m+'/'+y;
-
-  let html = `
-    <div class="hist-filter">
-      <input type="date" id="histDate" value="${dateStr||getTodayStr()}" max="${getTodayStr()}">
-      <button class="btn-filter" onclick="searchHistory()">🔍 ค้นหา</button>
+// ══════════════════════════════════════════════
+// DEPART FORM
+// ══════════════════════════════════════════════
+function renderDepartForm() {
+  if (!opts) return;
+  const driverOpts = (opts.drivers||[]).map(d=>`<option value="${esc(d.name)}">${esc(d.name)}</option>`).join('');
+  const carOpts    = (opts.freeCars||[]).length
+    ? opts.freeCars.map(c=>`<option value="${esc(c.plate)}">${esc(c.label)}</option>`).join('')
+    : '<option value="">ไม่มีรถว่าง</option>';
+  const destOpts   = (opts.dests||[]).map(d=>`<option value="${esc(d.name)}">${esc(d.name)}</option>`).join('');
+  document.getElementById('departContent').innerHTML = `
+    <div class="form-card">
+      <div class="form-title">📤 บันทึกออกงาน</div>
+      <div class="field"><label>พนักงานขับรถ</label>
+        <div class="sel-wrap"><select id="d_driver" onchange="updateDepartPreview()"><option value="">— เลือก พขร. —</option>${driverOpts}</select></div></div>
+      <div class="field"><label>ทะเบียนรถ</label>
+        <div class="sel-wrap"><select id="d_plate" onchange="updateDepartPreview()"><option value="">— เลือกทะเบียน —</option>${carOpts}</select></div></div>
+      <div class="field"><label>ปลายทาง</label>
+        <div class="sel-wrap"><select id="d_dest" onchange="onDestChange()"><option value="">— เลือกปลายทาง —</option>${destOpts}<option value="__other__">✏️ พิมพ์เอง...</option></select></div>
+        <div class="custom-input" id="d_customWrap"><input type="text" id="d_destCustom" placeholder="พิมพ์ปลายทาง..." oninput="updateDepartPreview()"></div></div>
+      <div class="preview-box" id="d_preview">
+        <div class="prev-row">👤 <span class="prev-val" id="pv_driver">—</span></div>
+        <div class="prev-row">🚗 <span class="prev-val" id="pv_plate">—</span></div>
+        <div class="prev-row">📍 <span class="prev-val" id="pv_dest">—</span></div>
+      </div>
+      <button class="btn-submit btn-blue" id="d_btn" onclick="submitDepart()" disabled>🚐 บันทึกออกงาน</button>
     </div>`;
+}
 
-  if (!histData.length) {
-    html += `<div class="hist-empty"><div class="hist-empty-icon">📋</div><div style="font-weight:700;color:var(--text2)">ไม่พบประวัติวันที่ ${thDate}</div></div>`;
-  } else {
-    html += `<div class="date-bar">พบ ${histData.length} รายการ วันที่ ${thDate}</div>`;
-    html += histData.map((h,i) => `
-      <div class="hist-card" style="animation-delay:${i*.05}s">
-        <div class="hist-head">
-          <div>
-            <div class="hist-plate">🚗 ${x(h.plate)}</div>
-            ${h.carName?`<div class="hist-carname">${x(h.carName)}</div>`:''}
-          </div>
-          <div class="hist-date-badge">${x(h.date)}</div>
-        </div>
-        <div class="hist-row"><span class="hist-ico">👤</span><div><div class="hist-lbl">พนักงานขับรถ</div><div class="hist-val">${x(h.driver)||'—'}</div></div></div>
-        <div class="hist-row"><span class="hist-ico">📍</span><div><div class="hist-lbl">ปลายทาง</div><div class="hist-val dest">${x(h.dest)||'—'}</div></div></div>
-        <div class="hist-time-row">
-          <div class="hist-chip hc-out"><div class="hc-lbl">🕐 เวลาออก</div><div class="hc-val hcv-out">${x(h.timeOut)||'—'}</div></div>
-          <div class="hist-chip hc-back"><div class="hc-lbl">✅ เวลากลับ</div><div class="hc-val ${h.timeBack?'hcv-back':'hcv-empty'}">${x(h.timeBack)||'ยังไม่กลับ'}</div></div>
-        </div>
-      </div>`).join('');
+function onDestChange() {
+  const v = document.getElementById('d_dest')?.value;
+  document.getElementById('d_customWrap')?.classList.toggle('show', v==='__other__');
+  updateDepartPreview();
+}
+
+function updateDepartPreview() {
+  const driver = document.getElementById('d_driver')?.value;
+  const plate  = document.getElementById('d_plate')?.value;
+  const dv     = document.getElementById('d_dest')?.value;
+  const dest   = dv==='__other__' ? document.getElementById('d_destCustom')?.value : dv;
+  document.getElementById('pv_driver').textContent = driver||'—';
+  document.getElementById('pv_plate').textContent  = plate||'—';
+  document.getElementById('pv_dest').textContent   = dest||'—';
+  document.getElementById('d_preview')?.classList.toggle('show',!!(driver||plate||dest));
+  if (document.getElementById('d_btn'))
+    document.getElementById('d_btn').disabled = !(driver&&plate&&dest);
+}
+
+async function submitDepart() {
+  const driver = document.getElementById('d_driver').value;
+  const plate  = document.getElementById('d_plate').value;
+  const dv     = document.getElementById('d_dest').value;
+  const dest   = dv==='__other__' ? document.getElementById('d_destCustom').value.trim() : dv;
+  if (!driver||!plate||!dest) return;
+  const btn = document.getElementById('d_btn');
+  btn.disabled=true; btn.textContent='⏳ กำลังบันทึก...';
+  try {
+    const res  = await fetch(GAS_URL+'?action=submitDepartByName&driverName='+encodeURIComponent(driver)+'&plate='+encodeURIComponent(plate)+'&dest='+encodeURIComponent(dest));
+    const data = await res.json();
+    if (data.ok) {
+      document.getElementById('departContent').innerHTML = `
+        <div class="success-state">
+          <div class="success-icon">✅</div>
+          <div class="success-title">บันทึกออกงานแล้ว!</div>
+          <div class="success-detail">🚗 ${x(plate)}<br>👤 ${x(driver)}<br>📍 ${x(dest)}</div>
+          <button class="btn-back" onclick="loadAll();showTab('dashboard')">← กลับหน้าสถานะ</button>
+        </div>`;
+      loadAll();
+    } else {
+      showToast(data.msg||'เกิดข้อผิดพลาด','err');
+      btn.disabled=false; btn.textContent='🚐 บันทึกออกงาน';
+    }
+  } catch(e) { showToast('เกิดข้อผิดพลาด','err'); btn.disabled=false; btn.textContent='🚐 บันทึกออกงาน'; }
+}
+
+// ══════════════════════════════════════════════
+// RETURN FORM
+// ══════════════════════════════════════════════
+function renderReturnForm() {
+  if (!opts) return;
+  const busy = opts.busyCars||[];
+  if (!busy.length) {
+    document.getElementById('returnContent').innerHTML = `
+      <div class="empty-state"><div class="empty-icon">🟢</div>
+      <div class="empty-txt">ไม่มีรถออกงานอยู่</div>
+      <div class="empty-sub">รถทุกคันว่างแล้ว</div></div>`;
+    return;
   }
-  content.innerHTML = html;
+  const items = busy.map(c=>`
+    <div class="return-item" id="ri_${esc(c.plate)}" onclick="selectReturn('${esc(c.plate)}')">
+      <div class="radio-circle"><span class="radio-check">✓</span></div>
+      <div class="return-info">
+        <div class="return-plate">🚗 ${esc(c.plate)}</div>
+        ${c.carName?`<div class="return-sub">${esc(c.carName)}</div>`:''}
+        <div class="return-dest">📍 ${esc(c.dest)}</div>
+        <div class="return-sub">👤 ${esc(c.driver)} 🕐 ${esc(c.timeOut)} น.</div>
+      </div>
+    </div>`).join('');
+  document.getElementById('returnContent').innerHTML = `
+    <div class="form-card">
+      <div class="form-title">📥 เลือกรถที่กลับถึง</div>
+      ${items}
+      <button class="btn-submit btn-green" id="r_btn" onclick="submitReturn()" disabled style="margin-top:4px">✅ ยืนยันกลับถึง</button>
+    </div>`;
+  selectedReturnPlate = null;
 }
 
-function switchTab(t) {
-  tab=t;
-  ['all','busy','free','hist'].forEach(x=>{
-    const el = document.getElementById('tab-'+x);
-    if (el) el.className='tab-btn'+(x===t?' active-'+t:'');
+function selectReturn(plate) {
+  (opts.busyCars||[]).forEach(c => document.getElementById('ri_'+c.plate)?.classList.remove('selected'));
+  selectedReturnPlate = plate;
+  document.getElementById('ri_'+plate)?.classList.add('selected');
+  document.getElementById('r_btn').disabled = false;
+}
+
+async function submitReturn() {
+  if (!selectedReturnPlate) return;
+  const btn = document.getElementById('r_btn');
+  btn.disabled=true; btn.textContent='⏳ กำลังบันทึก...';
+  try {
+    const res  = await fetch(GAS_URL+'?action=submitReturn&plate='+encodeURIComponent(selectedReturnPlate));
+    const data = await res.json();
+    const car  = (opts.busyCars||[]).find(c=>c.plate===selectedReturnPlate);
+    if (data.ok) {
+      document.getElementById('returnContent').innerHTML = `
+        <div class="success-state">
+          <div class="success-icon">✅</div>
+          <div class="success-title">กลับถึงแล้ว!</div>
+          <div class="success-detail">🚗 ${x(selectedReturnPlate)}<br>👤 ${x(car?.driver||'')}<br>📍 จาก ${x(car?.dest||'')}</div>
+          <button class="btn-back" onclick="loadAll();showTab('dashboard')">← กลับหน้าสถานะ</button>
+        </div>`;
+      loadAll();
+    } else {
+      showToast(data.msg||'เกิดข้อผิดพลาด','err');
+      btn.disabled=false; btn.textContent='✅ ยืนยันกลับถึง';
+    }
+  } catch(e) { showToast('เกิดข้อผิดพลาด','err'); btn.disabled=false; btn.textContent='✅ ยืนยันกลับถึง'; }
+}
+
+// ══════════════════════════════════════════════
+// TAB NAV
+// ══════════════════════════════════════════════
+function showTab(name) {
+  ['dashboard','depart','return'].forEach(t => {
+    document.getElementById('screen-'+t)?.classList.toggle('active', t===name);
+    const btn = document.getElementById('tab-'+t);
+    if (!btn) return;
+    btn.className = 'tab-btn' + (t===name?' active':'');
+    if (t===name && t==='depart') btn.classList.add('tab-red');
+    if (t===name && t==='return') btn.classList.add('tab-green');
   });
-  if (t === 'hist') loadHistory(getTodayStr());
-  else renderTab(t);
 }
 
-setInterval(load, 60000);
-load();
-
+// ══════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════
+let toastTimer;
+function showToast(msg,type='') {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='toast show'+(type?' '+type:'');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.className='toast',3000);
+}
 function x(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function esc(s){return String(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+setInterval(loadAll, 60000);
+window.onload = () => { loadAll(); checkNotifyStatus(); };
 </script>
 </body>
 </html>
