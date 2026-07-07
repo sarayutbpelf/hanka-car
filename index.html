@@ -514,34 +514,36 @@ function checkNotifyStatus() {
 // ══════════════════════════════════════════════
 // DATA
 // ══════════════════════════════════════════════
-let optsLoaded = false; // โหลด opts แค่ครั้งแรก
+let optsLoaded = false;
 
-async function loadAll(forceOpts) {
+async function loadAll() {
   if (isLoading) return;
   isLoading = true;
   document.getElementById('fab').classList.add('spin-anim');
   try {
-    if (!optsLoaded || forceOpts) {
-      // โหลดครั้งแรก — ดึงทุกอย่าง
-      const [r1, r2, r3] = await Promise.all([
-        fetch(GAS_URL + '?action=getCarData'),
+    // ดึงข้อมูลสถานะรถเสมอ
+    const r1   = await fetch(GAS_URL + '?action=getCarData');
+    allCars    = await r1.json();
+
+    // ดึง opts แค่ครั้งแรก หรือถ้ายังไม่มี
+    if (!optsLoaded) {
+      const [r2, r3] = await Promise.all([
         fetch(GAS_URL + '?action=getFormOptions'),
         fetch(GAS_URL + '?action=getHashtags'),
       ]);
-      allCars = await r1.json();
-      opts    = await r2.json();
+      opts = await r2.json();
       const hd = await r3.json();
       opts.hashtags          = hd.hashtags || [];
       opts.ambulanceKeywords = hd.keywords || [];
       optsLoaded = true;
     } else {
-      // refresh ปกติ — ดึงแค่สถานะรถ (เร็วกว่า 3x)
-      const r1 = await fetch(GAS_URL + '?action=getCarData');
-      allCars  = await r1.json();
-      // อัปเดต freeCars/busyCars ใน opts ด้วย
+      // refresh — อัปเดต freeCars/busyCars เท่านั้น
       const r2 = await fetch(GAS_URL + '?action=getFormOptions');
-      opts = { ...opts, ...(await r2.json()), hashtags: opts.hashtags, ambulanceKeywords: opts.ambulanceKeywords };
+      const newOpts = await r2.json();
+      opts.freeCars = newOpts.freeCars || [];
+      opts.busyCars = newOpts.busyCars || [];
     }
+
     updateStats();
     renderDashboard();
     renderDepartForm();
@@ -549,10 +551,13 @@ async function loadAll(forceOpts) {
     document.getElementById('updateBar').textContent =
       'อัปเดตล่าสุด ' + new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
   } catch(e) {
-    showToast('โหลดข้อมูลไม่สำเร็จ','err');
+    console.error('loadAll error:', e);
+    showToast('โหลดข้อมูลไม่สำเร็จ — ลองใหม่','err');
+  } finally {
+    // ✅ รีเซ็ตทุกกรณี ไม่ให้ค้าง
+    isLoading = false;
+    document.getElementById('fab').classList.remove('spin-anim');
   }
-  isLoading = false;
-  document.getElementById('fab').classList.remove('spin-anim');
 }
 
 function updateStats() {
