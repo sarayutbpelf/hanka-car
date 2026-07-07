@@ -28,8 +28,16 @@ html,body{height:100%;overflow:hidden;}
 body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
 
 /* INSTALL BANNER */
-#installBanner{display:none;position:fixed;bottom:76px;left:12px;right:12px;z-index:500;background:var(--navy);color:#fff;border-radius:16px;padding:14px 16px;flex-direction:row;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(13,46,110,.4);animation:slideUp .4s ease;}
-#installBanner.show{display:flex;}
+#installBanner{
+  display:none;position:fixed;
+  bottom:calc(90px + env(safe-area-inset-bottom));
+  left:12px;right:12px;z-index:500;
+  background:var(--navy);color:#fff;
+  border-radius:16px;padding:12px 14px;
+  flex-direction:row;align-items:center;gap:10px;
+  box-shadow:0 8px 32px rgba(13,46,110,.4);
+}
+#installBanner.show{display:flex;animation:slideUp .4s ease;}
 @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
 .install-icon{font-size:2rem;flex-shrink:0;}
 .install-text h4{font-size:.86rem;font-weight:700;}
@@ -236,6 +244,7 @@ input[type=text]{padding-right:14px;}
 </div>
 
 <!-- Install Banner -->
+<div id="installBanner">
   <div class="install-icon">📱</div>
   <div class="install-text">
     <h4>ติดตั้งแอปบนมือถือ</h4>
@@ -245,6 +254,7 @@ input[type=text]{padding-right:14px;}
     <button class="btn-install" id="btnInstall">ติดตั้ง</button>
     <button class="btn-dismiss" id="btnDismiss">✕</button>
   </div>
+</div>
 </div>
 
 <!-- Header -->
