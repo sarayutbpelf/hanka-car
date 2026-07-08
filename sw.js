@@ -44,15 +44,27 @@ self.addEventListener('fetch', e => {
 
 // ── Background Push (เมื่อแอปปิดอยู่) ──
 messaging.onBackgroundMessage(payload => {
-  const { title, body, icon, data } = payload.notification || payload.data || {};
-  return self.registration.showNotification(title || '🚑 Hancar', {
-    body    : body   || 'มีการอัปเดตสถานะรถ',
-    icon    : icon   || '/icon-192.png',
-    badge   : '/icon-192.png',
+  const n          = payload.notification || payload.data || {};
+  const notifTitle = n.title || '🚑 Hancar';
+  const notifBody  = n.body  || 'มีการอัปเดตสถานะรถ';
+
+  // ✅ ส่งข้อความไปบันทึกประวัติใน App
+  self.clients.matchAll({ includeUncontrolled: true, type: 'window' }).then(clients => {
+    clients.forEach(c => c.postMessage({
+      type : 'NOTIFY_HISTORY',
+      title: notifTitle,
+      body : notifBody,
+    }));
+  });
+
+  return self.registration.showNotification(notifTitle, {
+    body    : notifBody,
+    icon    : '/hanka-car/icon-192.png',
+    badge   : '/hanka-car/icon-192.png',
     vibrate : [200, 100, 200],
     tag     : 'hanka-status',
     renotify: true,
-    data    : { url: (data && data.url) || '/' },
+    data    : { url: '/hanka-car/' },
     actions : [
       { action: 'open',    title: '🔍 ดูสถานะ' },
       { action: 'dismiss', title: '✕ ปิด'      },
