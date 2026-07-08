@@ -375,6 +375,15 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(e => console.log('SW error:', e));
 }
 
+// ── รับข้อความจาก Service Worker (Background Push) ──
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', event => {
+    if (event.data && event.data.type === 'NOTIFY_HISTORY') {
+      addNotifyHistory(event.data.title, event.data.body);
+    }
+  });
+}
+
 // ══════════════════════════════════════════════
 // INSTALL BANNER
 // ══════════════════════════════════════════════
