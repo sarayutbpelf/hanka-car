@@ -352,11 +352,10 @@ try {
     const n     = payload.notification || {};
     const title = n.title || '🚑 Hancar';
     const body  = n.body  || '';
-    showToast(title + '\n' + body, 'ok');
+    // บันทึกประวัติ + แสดง Toast เท่านั้น
+    // ไม่ต้อง new Notification() เพราะ SW จัดการให้แล้ว
     addNotifyHistory(title, body);
-    if (Notification.permission === 'granted') {
-      new Notification(title, { body, icon:'/hanka-car/icon-192.png', badge:'/hanka-car/icon-192.png' });
-    }
+    showToast(title, 'ok');
     loadAll();
   });
 } catch(e) {
